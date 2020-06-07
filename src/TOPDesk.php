@@ -16,6 +16,7 @@ class TOPDesk extends Api
     public function __construct($endpoint = 'https://partnerships.topdesk.net/tas/', $retries = 5, $guzzleOptions = [])
     {
         $this->checkConfig();
+
         parent::__construct($this->endpointWithTrailingSlash(), $retries, $guzzleOptions);
         $this->useApplicationPassword(
             config('topdesk.application_username'),
@@ -23,6 +24,11 @@ class TOPDesk extends Api
         );
     }
 
+    /**
+     * Let's the User know they have forgotten to update their .env file
+     *
+     * @throws ConfigNotFound
+     */
     private function checkConfig()
     {
         foreach (config('topdesk') as $key => $config) {
@@ -37,6 +43,10 @@ class TOPDesk extends Api
     }
 
     /**
+     * Let's hold the end users hands,
+     * and if they fall at the first hurdle,
+     * we won't say a thing!
+     *
      * @return string
      */
     private function endpointWithTrailingSlash(): string
