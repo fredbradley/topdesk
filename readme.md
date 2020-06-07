@@ -7,6 +7,9 @@
 
 This is where your description should go. Take a look at [contributing.md](contributing.md) to see a to do list.
 
+## Early Adoptors Beware
+This is intended as a wrapper for the Laravel Ecosystem for a 3rd party product TOPdesk. As such in version 2 we shall be rapidly changing the responses to deliver a resource response more native to Laravel, rather than the flat Guzzle output.
+
 ## Installation
 
 Via Composer
