@@ -26,6 +26,45 @@ TOPdesk_app_password="52h63-2b7aw-tctkb-2lz2k-jejah" # Your application password
 ```
 
 
+## Guide
+Our TOPdesk API implementation contains the following features:
+- Simple login using application passwords (recommended) or tokens (legacy).
+- Automatic retry functionality that retries requests when connection errors or status codes >= 500 occur.
+ We have experienced various instabilities with the TOPdesk API, and hopefully this minimizes these shortcomings. 
+- Direct function calls for much used api endpoints (`createIncident($params)`, `getIncidentById($id)`,
+`getListOfIncidents()`, `escalateIncidentById($id)`, `deescalateIncidentById($id)`, `getListOfDepartments()`,
+`createDepartment($params)`, `getListOfBranches()`, `createBranch($params)` among others).
+- Easy syntax for all other endpoints using `$api->request($method, $uri, $json = [], $query = [])`.
+
+
+Now your API should be ready to use:
+```php
+$incidents = TOPDesk::getListOfIncidents([
+    'start' => 0,
+    'page_size' => 10
+]);
+
+foreach($incidents as $incident) {
+    var_dump($incident['number']);
+}
+```
+
+Many requests have been implemented as direct functions of the API. However, not all of them have been implemented.
+For manual API requests, use the `request()` function:
+```php
+TOPDesk::request('GET', 'api/incidents/call_types', [
+    // Optional array to be sent as JSON body (for POST/PUT requests).
+], [
+    // Optional (search) query parameters, see API documentation for supported values.
+], [
+    // Optional parameters for the Guzzle request itself.
+    // @see http://docs.guzzlephp.org/en/stable/request-options.html
+])
+```
+
+## Documentation
+- https://developers.topdesk.com/
+
 ## Change log
 
 Please see the [changelog](changelog.md) for more information on what has changed recently.
