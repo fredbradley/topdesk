@@ -1,6 +1,6 @@
 {
     "name": "fredbradley/topdesk",
-    "description": "A Laravel Package for TOPdesk",
+    "description": "A Laravel Service Provider for the TOPdesk API",
     "license": "MIT",
     "authors": [
         {
