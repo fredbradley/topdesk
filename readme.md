@@ -20,9 +20,9 @@ Ensure you understand the TOPdesk API configuration and your TOPdesk environment
 
 Add three variables to your `.env` file
 ``` txt
-TOPdesk_endpoint="https://servicedesk.cranleigh.org/tas" # Your TOPdesk url, ending in "`tas/`"
-TOPdesk_app_username="frb" # Your username you wish to authenticate with
-TOPdesk_app_password="52h63-2b7aw-tctkb-2lz2k-jejah" # Your application password for that username. 
+TOPdesk_endpoint="" # Your TOPdesk url, ending in "`tas/`"
+TOPdesk_app_username="" # Your username you wish to authenticate with
+TOPdesk_app_password="" # Your application password for that username. 
 ```
 
 
