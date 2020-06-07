@@ -1,7 +1,7 @@
 {
     "name": "fredbradley/topdesk",
     "description": "A Laravel Package for TOPdesk",
-    "license": "license",
+    "license": "MIT",
     "authors": [
         {
             "name": "Fred Bradley",
