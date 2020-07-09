@@ -4,17 +4,20 @@ namespace FredBradley\TOPDesk;
 
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
 use FredBradley\TOPDesk\Traits\Incidents;
+use FredBradley\TOPDesk\Traits\OperatorStats;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
-    use Incidents;
+    use Incidents, OperatorStats;
+
 
     /**
      * TOPDesk constructor.
+     *
      * @param string $endpoint
-     * @param int $retries
-     * @param array $guzzleOptions
+     * @param int    $retries
+     * @param array  $guzzleOptions
      */
     public function __construct($endpoint = 'https://partnerships.topdesk.net/tas/', $retries = 5, $guzzleOptions = [])
     {

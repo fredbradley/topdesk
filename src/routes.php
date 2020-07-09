@@ -9,13 +9,17 @@ Route::group(["prefix" => 'api/topdesk'], function () {
         return Cache::remember('topdesk-counts', now()->addMinutes(2), function () {
             return response()->json([
                 'open' => TOPDesk::countOpenTickets(),
-                'logged' => TOPDesk::countLoggedTickets(),
                 'unassigned' => TOPDesk::countUnassignedTickets(),
-                'inProgress' => TOPDesk::countInProgressTickets(),
-                'waitingForUser' => TOPDesk::countWaitingForUserTickets(),
-                'updatedByUser' => TOPDesk::countUpdatedByUserTickets(),
-                'waitingForSupplier' => TOPDesk::countWaitingForSupplier(),
-                'scheduled' => TOPDesk::countScheduledTickets(),
+                'logged' => TOPDesk::countTicketsByStatus('Logged'),
+                'inProgress' => TOPDesk::countTicketsByStatus('In progress'),
+                'waitingForUser' => TOPDesk::countTicketsByStatus('Waiting for user'),
+                'updatedByUser' => TOPDesk::countTicketsByStatus('Updated by user'),
+                'waitingForSupplier' => TOPDesk::countTicketsByStatus('Waiting for supplier'),
+                'scheduled' => TOPDesk::countTicketsByStatus('Scheduled'),
+                'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup("I.T. Services",
+                    ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
+                'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup("I.T. Services",
+                    ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
             ]);
         });
     });

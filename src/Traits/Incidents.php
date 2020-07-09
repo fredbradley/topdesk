@@ -3,6 +3,7 @@
 namespace FredBradley\TOPDesk\Traits;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 /**
  * Trait Incidents
@@ -15,20 +16,33 @@ trait Incidents
      */
     public function countOpenTickets(): int
     {
-        $result = $this->getNumIncidents([
+        return $this->getNumIncidents([
             'resolved' => 'false',
         ]);
-        return $result;
     }
 
     /**
      * @return int
      */
-    public function countLoggedTickets(): int
+    public function countTicketsDueThisWeek(): int
     {
-        $statusId = $this->getProcessingStatusId('Logged');
-        return $this->countByProcessingStatusId($statusId);
+        return $this->getNumIncidents([
+            'resolved' => 'false',
+            'target_date_end' => now()->endOfWeek()->format('Y-m-d'),
+        ]);
     }
+
+    /**
+     * @return int
+     */
+    public function countBreachedTickets(): int
+    {
+        return $this->getNumIncidents([
+            'resolved' => 'false',
+            'target_date_end' => now()->format('Y-m-d'),
+        ]);
+    }
+
 
     /**
      * @param string $processingStatusId
@@ -37,7 +51,9 @@ trait Incidents
      */
     public function countByProcessingStatusId(string $processingStatusId): int
     {
-        return $this->getNumIncidents(['processing_status' => $processingStatusId]);
+        return $this->getNumIncidents([
+            'processing_status' => $processingStatusId,
+        ]);
     }
 
     /**
@@ -45,7 +61,7 @@ trait Incidents
      *
      * @return int
      */
-    public function getNumIncidents(array $options): int
+    public function getNumIncidents(array $options = []): int
     {
         $response = $this->client->request('GET', 'api/incidents', [
             'query' => array_merge([
@@ -59,63 +75,59 @@ trait Incidents
         return count(json_decode((string)$response->getBody(), true));
     }
 
+    /**
+     * @return int
+     */
     public function countUnassignedTickets(): int
     {
         return $this->getNumIncidents([
-            'operator' => $this->getOperatorId('I.T. Services', 'operatorITServices'),
+            'operator' => $this->getOperatorGroupId('I.T. Services'),
         ]);
     }
 
-    public function getOperatorId(string $name)
+
+    /**
+     * @param string $username
+     *
+     * @return array
+     */
+    public function getOperatorByUsername(string $username): array
     {
-        return Cache::rememberForever('get_operator_name_' . $name, function () use ($name) {
+        return Cache::rememberForever('operator_' . $username, function () use ($username) {
+            $result = $this->request('GET', 'api/operators', [], [
+                'page_size' => 1,
+                'query' => '(networkLoginName==' . $username . ')',
+            ]);
+            if (count($result) == 1) {
+                return $result[ 0 ];
+            }
+            return $result;
+        });
+    }
+
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getOperatorGroupId(string $name): string
+    {
+        return Cache::rememberForever('get_operator_group_name_' . $name, function () use ($name) {
             $result = $this->request('GET', 'api/operatorgroups/lookup', [], ['name' => $name]);
             return $result[ 'results' ][ 0 ][ 'id' ];
         });
     }
 
-    /**
-     * @return int
-     */
-    public function countInProgressTickets(): int
-    {
-        $inProgressId = $this->getProcessingStatusId('In progress');
-        return $this->countByProcessingStatusId($inProgressId);
-    }
 
     /**
+     * @param string $statusName
+     *
      * @return int
      */
-    public function countWaitingForUserTickets(): int
+    public function countTicketsByStatus(string $statusName): int
     {
-        $statusId = $this->getProcessingStatusId('Waiting for user');
-        return $this->countByProcessingStatusId($statusId);
-    }
-
-    /**
-     * @return int
-     */
-    public function countUpdatedByUserTickets(): int
-    {
-        $statusId = $this->getProcessingStatusId('Updated by user');
-        return $this->countByProcessingStatusId($statusId);
-    }
-
-    /**
-     * @return int
-     */
-    public function countWaitingForSupplier(): int
-    {
-        $statusId = $this->getProcessingStatusId('Waiting for supplier');
-        return $this->countByProcessingStatusId($statusId);
-    }
-
-    /**
-     * @return int
-     */
-    public function countScheduledTickets(): int
-    {
-        $statusId = $this->getProcessingStatusId('Scheduled');
+        $statusId = $this->getProcessingStatusId($statusName);
         return $this->countByProcessingStatusId($statusId);
     }
 
@@ -146,6 +158,5 @@ trait Incidents
             }
             return [];
         });
-
     }
 }
