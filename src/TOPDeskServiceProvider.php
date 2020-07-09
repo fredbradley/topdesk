@@ -16,7 +16,7 @@ class TOPDeskServiceProvider extends ServiceProvider
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'fredbradley');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'fredbradley');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
 
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
@@ -31,7 +31,7 @@ class TOPDeskServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/topdesk.php', 'topdesk');
+        $this->mergeConfigFrom(__DIR__ . '/../config/topdesk.php', 'topdesk');
 
         // Register the service the package provides.
         $this->app->singleton('topdesk', function ($app) {
@@ -48,7 +48,7 @@ class TOPDeskServiceProvider extends ServiceProvider
     {
         return ['topdesk'];
     }
-    
+
     /**
      * Console-specific booting.
      *
@@ -58,7 +58,7 @@ class TOPDeskServiceProvider extends ServiceProvider
     {
         // Publishing the configuration file.
         $this->publishes([
-            __DIR__.'/../config/topdesk.php' => config_path('topdesk.php'),
+            __DIR__ . '/../config/topdesk.php' => config_path('topdesk.php'),
         ], 'topdesk.config');
 
         // Publishing the views.
