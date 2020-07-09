@@ -3,10 +3,13 @@
 namespace FredBradley\TOPDesk;
 
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
+use FredBradley\TOPDesk\Traits\Incidents;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
+    use Incidents;
+
     /**
      * TOPDesk constructor.
      * @param string $endpoint
