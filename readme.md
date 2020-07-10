@@ -1,14 +1,17 @@
 # TOPdesk API Service Provider
 
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Total Downloads][ico-downloads]][link-downloads]
-[![Build Status][ico-travis]][link-travis]
-[![StyleCI][ico-styleci]][link-styleci]
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/fredbradley/cacher.svg?style=flat-square)](https://packagist.org/packages/fredbradley/cacher)
+[![Total Downloads](https://img.shields.io/packagist/dt/fredbradley/cacher.svg?style=flat-square)](https://packagist.org/packages/fredbradley/xirrusapi)
+![StyleCI Status](https://github.styleci.io/repos/270444651/shield)
 
-This is where your description should go. Take a look at [contributing.md](contributing.md) to see a to do list.
+
+Primarily a Service Provider for Laravel, but this package can be used on any PHP script. It connects with a TOPdesk instance with API permissions. It uses [Innovaat's](https://github.com/innovaat/topdesk-php) package as a basis.  
 
 ## Early Adoptors Beware
 This is intended as a wrapper for the Laravel Ecosystem for a 3rd party product TOPdesk. As such in version 2 we shall be rapidly changing the responses to deliver a resource response more native to Laravel, rather than the flat Guzzle output.
+
+## Minimum Requirements
+- PHP 7.2 or higher
 
 ## Installation
 
@@ -95,14 +98,3 @@ If you discover any security related issues, please email author email instead o
 
 license. Please see the [license file](license.md) for more information.
 
-[ico-version]: https://img.shields.io/packagist/v/fredbradley/topdesk.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/fredbradley/topdesk.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/fredbradley/topdesk/master.svg?style=flat-square
-[ico-styleci]: https://styleci.io/repos/12345678/shield
-
-[link-packagist]: https://packagist.org/packages/fredbradley/topdesk
-[link-downloads]: https://packagist.org/packages/fredbradley/topdesk
-[link-travis]: https://travis-ci.org/fredbradley/topdesk
-[link-styleci]: https://styleci.io/repos/12345678
-[link-author]: https://github.com/fredbradley
-[link-contributors]: ../../contributors
