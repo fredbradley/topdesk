@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 
-Route::group(["prefix" => 'api/topdesk'], function () {
+Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
         return Cache::remember('topdesk-counts', now()->addMinutes(2), function () {
             return response()->json([
@@ -16,9 +16,9 @@ Route::group(["prefix" => 'api/topdesk'], function () {
                 'updatedByUser' => TOPDesk::countTicketsByStatus('Updated by user'),
                 'waitingForSupplier' => TOPDesk::countTicketsByStatus('Waiting for supplier'),
                 'scheduled' => TOPDesk::countTicketsByStatus('Scheduled'),
-                'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup("I.T. Services",
+                'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
                     ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
-                'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup("I.T. Services",
+                'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup('I.T. Services',
                     ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
             ]);
         });

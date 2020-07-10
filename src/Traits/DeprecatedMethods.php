@@ -1,8 +1,6 @@
 <?php
 
-
 namespace FredBradley\TOPDesk\Traits;
-
 
 trait DeprecatedMethods
 {

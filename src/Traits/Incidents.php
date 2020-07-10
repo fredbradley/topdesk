@@ -3,11 +3,9 @@
 namespace FredBradley\TOPDesk\Traits;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 /**
- * Trait Incidents
- * @package FredBradley\TOPDesk\Traits
+ * Trait Incidents.
  */
 trait Incidents
 {
@@ -43,7 +41,6 @@ trait Incidents
         ]);
     }
 
-
     /**
      * @param string $processingStatusId
      *
@@ -72,7 +69,8 @@ trait Incidents
         if ($response->getStatusCode() === 204) {
             return 0;
         }
-        return count(json_decode((string)$response->getBody(), true));
+
+        return count(json_decode((string) $response->getBody(), true));
     }
 
     /**
@@ -85,7 +83,6 @@ trait Incidents
         ]);
     }
 
-
     /**
      * @param string $username
      *
@@ -93,18 +90,18 @@ trait Incidents
      */
     public function getOperatorByUsername(string $username): array
     {
-        return Cache::rememberForever('operator_' . $username, function () use ($username) {
+        return Cache::rememberForever('operator_'.$username, function () use ($username) {
             $result = $this->request('GET', 'api/operators', [], [
                 'page_size' => 1,
-                'query' => '(networkLoginName==' . $username . ')',
+                'query' => '(networkLoginName=='.$username.')',
             ]);
             if (count($result) == 1) {
-                return $result[ 0 ];
+                return $result[0];
             }
+
             return $result;
         });
     }
-
 
     /**
      * @param string $name
@@ -113,12 +110,12 @@ trait Incidents
      */
     public function getOperatorGroupId(string $name): string
     {
-        return Cache::rememberForever('get_operator_group_name_' . $name, function () use ($name) {
+        return Cache::rememberForever('get_operator_group_name_'.$name, function () use ($name) {
             $result = $this->request('GET', 'api/operatorgroups/lookup', [], ['name' => $name]);
-            return $result[ 'results' ][ 0 ][ 'id' ];
+
+            return $result['results'][0]['id'];
         });
     }
-
 
     /**
      * @param string $statusName
@@ -128,9 +125,9 @@ trait Incidents
     public function countTicketsByStatus(string $statusName): int
     {
         $statusId = $this->getProcessingStatusId($statusName);
+
         return $this->countByProcessingStatusId($statusId);
     }
-
 
     /**
      * @param string $name
@@ -139,7 +136,7 @@ trait Incidents
      */
     public function getProcessingStatusId(string $name): string
     {
-        return $this->getProcessingStatus($name)[ 'id' ];
+        return $this->getProcessingStatus($name)['id'];
     }
 
     /**
@@ -149,13 +146,14 @@ trait Incidents
      */
     public function getProcessingStatus(string $name): array
     {
-        return Cache::rememberForever('status_' . $name, function () use ($name) {
-            $result = $this->request("GET", "api/incidents/statuses");
+        return Cache::rememberForever('status_'.$name, function () use ($name) {
+            $result = $this->request('GET', 'api/incidents/statuses');
             foreach ($result as $key => $val) {
-                if ($val[ 'name' ] === $name) {
-                    return $result[ $key ];
+                if ($val['name'] === $name) {
+                    return $result[$key];
                 }
             }
+
             return [];
         });
     }

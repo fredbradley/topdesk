@@ -11,7 +11,6 @@ class TOPDesk extends Api
 {
     use Incidents, OperatorStats;
 
-
     /**
      * TOPDesk constructor.
      *
@@ -31,7 +30,7 @@ class TOPDesk extends Api
     }
 
     /**
-     * Let's the User know they have forgotten to update their .env file
+     * Let's the User know they have forgotten to update their .env file.
      *
      * @throws ConfigNotFound
      */
@@ -39,10 +38,10 @@ class TOPDesk extends Api
     {
         foreach (config('topdesk') as $key => $config) {
             if ($config === null) {
-                throw new ConfigNotFound("You need to set the config for env('topdesk." . $key . "')", 400);
+                throw new ConfigNotFound("You need to set the config for env('topdesk.".$key."')", 400);
             }
-            if ($config === "") {
-                throw new ConfigNotFound("It seems unlikely that the env('topdesk." . $key . "') should be an empty string!? I don't work with people like that!",
+            if ($config === '') {
+                throw new ConfigNotFound("It seems unlikely that the env('topdesk.".$key."') should be an empty string!? I don't work with people like that!",
                     400);
             }
         }
@@ -57,7 +56,6 @@ class TOPDesk extends Api
      */
     private function endpointWithTrailingSlash(): string
     {
-        return rtrim(config('topdesk.endpoint'), '/\\') . '/';
+        return rtrim(config('topdesk.endpoint'), '/\\').'/';
     }
-
 }
