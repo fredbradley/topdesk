@@ -5,8 +5,8 @@
     "authors": [
         {
             "name": "Fred Bradley",
-            "email": "hello@fredbradley.co.uk",
-            "homepage": "https://www.fredbradley.uk"
+            "email": "code@fredbradley.co.uk",
+            "role": "Developer"
         }
     ],
     "homepage": "https://github.com/fredbradley/topdesk",
