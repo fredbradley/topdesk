@@ -2,7 +2,8 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use Illuminate\Support\Facades\Cache;
+use FredBradley\Cacher\Cacher;
+use FredBradley\Cacher\EasyMinutes;
 
 /**
  * Trait OperatorStats.
@@ -18,7 +19,7 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cache::remember('get_operators_'.$operatorGroupId, now()->addWeek(),
+        return Cacher::setAndGet('get_operators_'.$operatorGroupId, EasyMinutes::A_MONTH,
             function () use ($operatorGroupId) {
                 return $this->request(
                     'GET',
