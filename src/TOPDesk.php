@@ -3,13 +3,14 @@
 namespace FredBradley\TOPDesk;
 
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
+use FredBradley\TOPDesk\Traits\Changes;
 use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
-    use Incidents, OperatorStats;
+    use Incidents, OperatorStats, Changes;
 
     /**
      * TOPDesk constructor.
