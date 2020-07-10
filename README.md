@@ -86,7 +86,7 @@ $ composer test
 
 ## Contributing
 
-Please see [contributing.md](contributing.md) for details and a todolist.
+Please see [CONTRIBUTING.md](contributing.md) for details and a todolist.
 
 ## Security
 
@@ -99,5 +99,5 @@ If you discover any security related issues, please email author email instead o
 
 ## License
 
-license. Please see the [license file](license.md) for more information.
+MIT. Please see the [license file](LICENSE.md) for more information.
 
