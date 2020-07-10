@@ -68,7 +68,7 @@ TOPDesk::request('GET', 'api/incidents/call_types', [
 ], [
     // Optional parameters for the Guzzle request itself.
     // @see http://docs.guzzlephp.org/en/stable/request-options.html
-])
+]);
 ```
 
 ## Documentation
