@@ -1,7 +1,7 @@
 # TOPdesk API Service Provider
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/fredbradley/cacher.svg?style=flat-square)](https://packagist.org/packages/fredbradley/cacher)
-[![Total Downloads](https://img.shields.io/packagist/dt/fredbradley/cacher.svg?style=flat-square)](https://packagist.org/packages/fredbradley/xirrusapi)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/fredbradley/topdesk.svg?style=flat-square)](https://packagist.org/packages/fredbradley/topdesk)
+[![Total Downloads](https://img.shields.io/packagist/dt/fredbradley/topdesk.svg?style=flat-square)](https://packagist.org/packages/fredbradley/topdesk)
 ![StyleCI Status](https://github.styleci.io/repos/270444651/shield)
 
 
