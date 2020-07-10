@@ -1,7 +1,7 @@
 <?php
 
-use FredBradley\TOPDesk\Facades\TOPDesk;
 use FredBradley\Cacher\Cacher;
+use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'api/topdesk'], function () {

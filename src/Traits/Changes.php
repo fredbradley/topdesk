@@ -1,12 +1,9 @@
 <?php
 
-
 namespace FredBradley\TOPDesk\Traits;
-
 
 trait Changes
 {
-
     public function allOpenChangeActivities()
     {
         return $this->request('GET', 'api/operatorChangeActivities', [], [
@@ -14,7 +11,7 @@ trait Changes
             'sort' => 'plannedFinalDate',
             'blocked' => 'false',
             'archived' => 'false',
-        ])[ 'results' ];
+        ])['results'];
     }
 
     public function unassignedWaitingChangeActivities()
@@ -27,18 +24,19 @@ trait Changes
             'blocked' => 'false',
             'archived' => 'false',
             'operatorGroup' => $operatorId,
-        ])[ 'results' ];
+        ])['results'];
     }
 
     public function waitingChangeActivitiesByUsername(string $username)
     {
-        $operatorId = $this->getOperatorByUsername($username)[ 'id' ];
+        $operatorId = $this->getOperatorByUsername($username)['id'];
+
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
     }
 
     public function resolvedChangeActivitiesByOperatorIdByTime(string $id, string $timeString)
     {
-        return $this->request('GET', 'api/operatorChangeActivities', [],  [
+        return $this->request('GET', 'api/operatorChangeActivities', [], [
             'open' => 'false',
             'finalDateAfter' => now()->startOf($timeString)->format('Y-m-d'),
         ]);
@@ -52,7 +50,6 @@ trait Changes
             'blocked' => 'false',
             'archived' => 'false',
             'operator' => $id,
-        ])[ 'results' ];
+        ])['results'];
     }
-
 }
