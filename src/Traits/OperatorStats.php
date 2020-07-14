@@ -19,16 +19,20 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cacher::setAndGet('get_operators_'.$operatorGroupId, EasyMinutes::A_MONTH,
+        return Cacher::setAndGet('get_operators_' . $operatorGroupId, EasyMinutes::A_MONTH,
             function () use ($operatorGroupId) {
                 return $this->request(
                     'GET',
                     'api/operators',
                     [],
-                    ['query' => '(operatorGroup.id=='.$operatorGroupId.')']
+                    [
+                        'page_size' => 100,
+                        'query' => '(operatorGroup.id==' . $operatorGroupId . ')',
+                    ]
                 );
             });
     }
+
 
     /**
      * @param string $name
@@ -41,8 +45,8 @@ trait OperatorStats
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
+            if (! in_array($operator[ 'networkLoginName' ], $ignoreUsernames)) {
+                $results[ $operator[ 'networkLoginName' ] ] = $this->countOpenTicketsByOperator($operator[ 'id' ]);
             }
         }
 
@@ -59,9 +63,9 @@ trait OperatorStats
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
+            if (! in_array($operator[ 'networkLoginName' ], $ignoreUsernames)) {
                 foreach (['day', 'week', 'month', 'year'] as $timeSpan) {
-                    $results[$operator['networkLoginName']][$timeSpan] = $this->countResolvesByTime($operator['id'],
+                    $results[ $operator[ 'networkLoginName' ] ][ $timeSpan ] = $this->countResolvesByTime($operator[ 'id' ],
                         $timeSpan);
                 }
             }
