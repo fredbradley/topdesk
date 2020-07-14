@@ -16,6 +16,8 @@ Route::group(['prefix' => 'api/topdesk'], function () {
                 'updatedByUser' => TOPDesk::countTicketsByStatus('Updated by user'),
                 'waitingForSupplier' => TOPDesk::countTicketsByStatus('Waiting for supplier'),
                 'scheduled' => TOPDesk::countTicketsByStatus('Scheduled'),
+                'dueThisWeek' => TOPDesk::countTicketsDueThisWeek(),
+                'breachedTickets' => TOPDesk::coundBreachedTickets(),
                 'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
                     ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
                 'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup('I.T. Services',

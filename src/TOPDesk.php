@@ -4,13 +4,14 @@ namespace FredBradley\TOPDesk;
 
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
 use FredBradley\TOPDesk\Traits\Changes;
+use FredBradley\TOPDesk\Traits\Counts;
 use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
-    use Incidents, OperatorStats, Changes;
+    use Incidents, OperatorStats, Changes, Counts;
 
     /**
      * TOPDesk constructor.
@@ -31,7 +32,7 @@ class TOPDesk extends Api
     }
 
     /**
-     * Let's the User know they have forgotten to update their .env file.
+     * Let the User know if they have forgotten to update their .env file.
      *
      * @throws ConfigNotFound
      */
@@ -39,10 +40,10 @@ class TOPDesk extends Api
     {
         foreach (config('topdesk') as $key => $config) {
             if ($config === null) {
-                throw new ConfigNotFound("You need to set the config for env('topdesk.".$key."')", 400);
+                throw new ConfigNotFound("You need to set the config for env('topdesk." . $key . "')", 400);
             }
             if ($config === '') {
-                throw new ConfigNotFound("It seems unlikely that the env('topdesk.".$key."') should be an empty string!? I don't work with people like that!",
+                throw new ConfigNotFound("It seems unlikely that the env('topdesk." . $key . "') should be an empty string!? I don't work with people like that!",
                     400);
             }
         }
@@ -57,6 +58,6 @@ class TOPDesk extends Api
      */
     private function endpointWithTrailingSlash(): string
     {
-        return rtrim(config('topdesk.endpoint'), '/\\').'/';
+        return rtrim(config('topdesk.endpoint'), '/\\') . '/';
     }
 }
