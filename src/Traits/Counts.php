@@ -1,8 +1,6 @@
 <?php
 
-
 namespace FredBradley\TOPDesk\Traits;
-
 
 trait Counts
 {
@@ -67,7 +65,7 @@ trait Counts
             return 0;
         }
 
-        return count(json_decode((string)$response->getBody(), true));
+        return count(json_decode((string) $response->getBody(), true));
     }
 
     /**
