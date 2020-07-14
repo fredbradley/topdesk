@@ -37,7 +37,7 @@ TOPdesk_app_password="" # Your application password for that username.
 
 ## Guide
 Our TOPdesk API implementation contains the following features:
-- Simple login using application passwords (recommended) or tokens (legacy).
+- Simple login using application passwords.
 - Automatic retry functionality that retries requests when connection errors or status codes >= 500 occur.
  We have experienced various instabilities with the TOPdesk API, and hopefully this minimizes these shortcomings. 
 - Direct function calls for much used api endpoints (`createIncident($params)`, `getIncidentById($id)`,
