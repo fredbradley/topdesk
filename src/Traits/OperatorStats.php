@@ -44,7 +44,7 @@ trait OperatorStats
             'closed_date_start' => now()->startOf($timeString)->format('Y-m-d'),
         ]);
 
-        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString));
+        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)['results']);
 
         return $incidents + $changes;
     }
