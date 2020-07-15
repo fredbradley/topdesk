@@ -99,11 +99,38 @@ trait Counts
             'resolved' => 'false',
         ]);
 
-        $changeActivities = count($this->waitingChangeActivitiesByOperatorId($operatorId));
-
-        return $incidents + $changeActivities;
+        return $incidents + $this->countWaitingChangeActivitiesByOperatorId($operatorId);
     }
 
+    /**
+     * @param string $operatorId
+     *
+     * @return int
+     */
+    public function countActiveTicketsbyOperator(string $operatorId): int
+    {
+        $incidents = $this->getNumIncidents([
+            'operator' => $operatorId,
+            'resolved' => 'false',
+            'processing_status' => [
+                $this->getProcessingStatusId('Logged'),
+                $this->getProcessingStatusId('In progress'),
+                $this->getProcessingStatusId('Updated by user'),
+            ],
+        ]);
+
+        return $incidents + $this->countWaitingChangeActivitiesByOperatorId($operatorId);
+    }
+
+    /**
+     * @param string $operatorId
+     *
+     * @return int
+     */
+    public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
+    {
+        return count($this->waitingChangeActivitiesByOperatorId($operatorId));
+    }
     /**
      * @param string $statusName
      *
