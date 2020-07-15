@@ -34,22 +34,24 @@ trait Changes
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
     }
 
-    public function resolvedChangeActivitiesByOperatorIdByTime(string $id, string $timeString)
+    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString)
     {
         return $this->request('GET', 'api/operatorChangeActivities', [], [
             'open' => 'false',
+            'operator' => $operatorId,
+            'pageSize' => 1000,
             'finalDateAfter' => now()->startOf($timeString)->format('Y-m-d'),
         ]);
     }
 
-    public function waitingChangeActivitiesByOperatorId(string $id)
+    public function waitingChangeActivitiesByOperatorId(string $operatorId)
     {
         return $this->request('GET', 'api/operatorChangeActivities', [], [
             'open' => 'true',
             'sort' => 'plannedFinalDate',
             'blocked' => 'false',
             'archived' => 'false',
-            'operator' => $id,
+            'operator' => $operatorId,
         ])['results'];
     }
 }
