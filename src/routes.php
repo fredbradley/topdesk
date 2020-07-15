@@ -20,6 +20,8 @@ Route::group(['prefix' => 'api/topdesk'], function () {
                 'breachedTickets' => TOPDesk::countBreachedTickets(),
                 'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
                     ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
+                'usersActiveCounts' => TOPDesk::activeCountsForOperatorGroup('I.T. Services',
+                    ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
                 'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup('I.T. Services',
                     ['TNSCSUPPORT', 'CMJO', 'HELPDESK']),
             ]);

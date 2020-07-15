@@ -51,6 +51,24 @@ trait OperatorStats
 
         return $results;
     }
+    /**
+     * @param string $name
+     * @param array  $ignoreUsernames
+     *
+     * @return array
+     */
+    public function activeCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
+    {
+        $operators = $this->getOperatorsByOperatorGroup($name);
+        $results = [];
+        foreach ($operators as $operator) {
+            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
+                $results[$operator['networkLoginName']] = $this->countActiveTicketsByOperator($operator['id']);
+            }
+        }
+
+        return $results;
+    }
 
     /**
      * @param string $name

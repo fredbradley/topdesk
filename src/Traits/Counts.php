@@ -2,6 +2,9 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\TransferStats;
+
 trait Counts
 {
     /**
@@ -48,6 +51,32 @@ trait Counts
         ]);
     }
 
+
+    /**
+     *
+     * @param array $firstArray
+     * @param array $mergeFrom
+     *
+     * @return string
+     */
+    private function convertArrayMergeToQueryString(array $firstArray, array $mergeFrom): string
+    {
+        array_merge()
+        $str = '';
+        foreach ([$firstArray, $mergeFrom] as $array) {
+            foreach ($array as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $subvalue) {
+                        $str .= $key . '=' . $subvalue . '&';
+                    }
+                } else {
+                    $str .= $key . '=' . $value . '&';
+                }
+            }
+        }
+        return $str;
+    }
+
     /**
      * @param array $options
      *
@@ -56,16 +85,20 @@ trait Counts
     public function getNumIncidents(array $options = []): int
     {
         $response = $this->client->request('GET', 'api/incidents', [
-            'query' => array_merge([
+            'query' => $this->convertArrayMergeToQueryString([
                 'start' => 0,
                 'page_size' => 10000,
             ], $options),
+            'on_stats' => function (TransferStats $stats) use (&$url) {
+                $url = $stats->getEffectiveUri();
+            },
         ]);
+
         if ($response->getStatusCode() === 204) {
             return 0;
         }
 
-        return count(json_decode((string) $response->getBody(), true));
+        return count(json_decode((string)$response->getBody(), true));
     }
 
     /**
@@ -82,7 +115,7 @@ trait Counts
             'closed_date_start' => now()->startOf($timeString)->format('Y-m-d'),
         ]);
 
-        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)['results']);
+        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)[ 'results' ]);
 
         return $incidents + $changes;
     }
