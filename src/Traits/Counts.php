@@ -2,7 +2,6 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
 
 trait Counts
@@ -51,9 +50,7 @@ trait Counts
         ]);
     }
 
-
     /**
-     *
      * @param array $firstArray
      * @param array $mergeFrom
      *
@@ -66,13 +63,14 @@ trait Counts
             foreach ($array as $key => $value) {
                 if (is_array($value)) {
                     foreach ($value as $subvalue) {
-                        $str .= $key . '=' . $subvalue . '&';
+                        $str .= $key.'='.$subvalue.'&';
                     }
                 } else {
-                    $str .= $key . '=' . $value . '&';
+                    $str .= $key.'='.$value.'&';
                 }
             }
         }
+
         return $str;
     }
 
@@ -97,7 +95,7 @@ trait Counts
             return 0;
         }
 
-        return count(json_decode((string)$response->getBody(), true));
+        return count(json_decode((string) $response->getBody(), true));
     }
 
     /**
@@ -114,7 +112,7 @@ trait Counts
             'closed_date_start' => now()->startOf($timeString)->format('Y-m-d'),
         ]);
 
-        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)[ 'results' ]);
+        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)['results']);
 
         return $incidents + $changes;
     }
