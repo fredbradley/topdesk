@@ -51,6 +51,7 @@ trait OperatorStats
 
         return $results;
     }
+
     /**
      * @param string $name
      * @param array  $ignoreUsernames
