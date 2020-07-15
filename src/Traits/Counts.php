@@ -61,7 +61,6 @@ trait Counts
      */
     private function convertArrayMergeToQueryString(array $firstArray, array $mergeFrom): string
     {
-        array_merge()
         $str = '';
         foreach ([$firstArray, $mergeFrom] as $array) {
             foreach ($array as $key => $value) {
