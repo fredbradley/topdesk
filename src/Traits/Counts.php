@@ -131,6 +131,7 @@ trait Counts
     {
         return count($this->waitingChangeActivitiesByOperatorId($operatorId));
     }
+
     /**
      * @param string $statusName
      *
