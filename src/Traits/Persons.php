@@ -1,8 +1,6 @@
 <?php
 
-
 namespace FredBradley\TOPDesk\Traits;
-
 
 trait Persons
 {
@@ -13,8 +11,8 @@ trait Persons
      */
     public function getPersonByUsername(string $username)
     {
-        return $this->request("GET", "api/persons", [], [
-            'query' => '(networkLoginName==' . $username . ')',
+        return $this->request('GET', 'api/persons', [], [
+            'query' => '(networkLoginName=='.$username.')',
         ]);
     }
 }

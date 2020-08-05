@@ -71,7 +71,7 @@ class TOPDesk extends Api
      * @param array $json
      * @param array $query
      * @param array $options
-     * @param boolean $decode JSON decode response body (defaults to true).
+     * @param bool $decode JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -80,16 +80,17 @@ class TOPDesk extends Api
         try {
             $response = $this->client->request($method, $uri, array_merge([
                 'json' => $json,
-                'query' => $query
+                'query' => $query,
             ], $options));
 
-            return $decode ? json_decode((string)$response->getBody(), true) : (string)$response->getBody();
+            return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
         } catch (ServerException $exception) {
-            Log::error("TOPdesk Server Exception", [
+            Log::error('TOPdesk Server Exception', [
                 'status' => $exception->getCode(),
                 'method' => $method,
-                'uri' => $uri
+                'uri' => $uri,
             ]);
+
             return $exception;
         }
     }
