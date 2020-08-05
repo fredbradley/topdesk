@@ -7,11 +7,14 @@ use FredBradley\TOPDesk\Traits\Changes;
 use FredBradley\TOPDesk\Traits\Counts;
 use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
+use FredBradley\TOPDesk\Traits\Persons;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Facades\Log;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
-    use Incidents, OperatorStats, Changes, Counts;
+    use Incidents, OperatorStats, Changes, Counts, Persons;
 
     /**
      * TOPDesk constructor.
@@ -59,5 +62,35 @@ class TOPDesk extends Api
     private function endpointWithTrailingSlash(): string
     {
         return rtrim(config('topdesk.endpoint'), '/\\').'/';
+    }
+
+    /**
+     * Shorthand function to create requests with JSON body and query parameters.
+     * @param $method
+     * @param string $uri
+     * @param array $json
+     * @param array $query
+     * @param array $options
+     * @param boolean $decode JSON decode response body (defaults to true).
+     * @return mixed|ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function request($method, $uri = '', array $json = [], array $query = [], array $options = [], $decode = true)
+    {
+        try {
+            $response = $this->client->request($method, $uri, array_merge([
+                'json' => $json,
+                'query' => $query
+            ], $options));
+
+            return $decode ? json_decode((string)$response->getBody(), true) : (string)$response->getBody();
+        } catch (ServerException $exception) {
+            Log::error("TOPdesk Server Exception", [
+                'status' => $exception->getCode(),
+                'method' => $method,
+                'uri' => $uri
+            ]);
+            return $exception;
+        }
     }
 }
