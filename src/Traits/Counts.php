@@ -117,7 +117,7 @@ trait Counts
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
-        $incidents = Cacher::setAndGet('incidentsResolvedByOperatorAndTime', EasySeconds::minutes(5),
+        $incidents = Cacher::setAndGet('incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString, EasySeconds::minutes(5),
             function () use ($operatorId, $timeString) {
                 return $this->getNumIncidents([
                     'operator' => $operatorId,
