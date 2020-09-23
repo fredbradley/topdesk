@@ -1,6 +1,5 @@
 <?php
 
-use FredBradley\Cacher\Cacher;
 use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Facades\Route;
 

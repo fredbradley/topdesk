@@ -2,7 +2,6 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use Carbon\Carbon;
 use FredBradley\Cacher\Cacher;
 use FredBradley\Cacher\EasySeconds;
 
@@ -10,13 +9,13 @@ trait Changes
 {
     public function allOpenChangeActivities()
     {
-        return Cacher::setAndGet("operatorChangeActivites", EasySeconds::minutes(9), function () {
+        return Cacher::setAndGet('operatorChangeActivites', EasySeconds::minutes(9), function () {
             return $this->request('GET', 'api/operatorChangeActivities', [], [
                 'open' => 'true',
                 'sort' => 'plannedFinalDate',
                 'blocked' => 'false',
                 'archived' => 'false',
-            ])[ 'results' ];
+            ])['results'];
         });
     }
 
@@ -24,7 +23,7 @@ trait Changes
     {
         $operatorId = $this->getOperatorGroupId('I.T. Services');
 
-        return Cacher::setAndGet("unassignedWaitingChangeActivities_" . $operatorId,
+        return Cacher::setAndGet('unassignedWaitingChangeActivities_'.$operatorId,
             EasySeconds::minutes(8),
             function () use ($operatorId) {
                 return $this->request('GET', 'api/operatorChangeActivities', [], [
@@ -33,15 +32,15 @@ trait Changes
                     'blocked' => 'false',
                     'archived' => 'false',
                     'operatorGroup' => $operatorId,
-                ])[ 'results' ];
+                ])['results'];
             });
     }
 
     public function waitingChangeActivitiesByUsername(string $username)
     {
-        $operatorId = Cacher::setAndGet("getOperatorByUsername_" . $username,
+        $operatorId = Cacher::setAndGet('getOperatorByUsername_'.$username,
             EasySeconds::hours(1), function () use ($username) {
-                return $this->getOperatorByUsername($username)[ 'id' ];
+                return $this->getOperatorByUsername($username)['id'];
             });
 
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
@@ -49,7 +48,7 @@ trait Changes
 
     public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString)
     {
-        return Cacher::setAndGet("resolvedChangeActivitesByOperatorAndTime_" . $operatorId . "_" . $timeString,
+        return Cacher::setAndGet('resolvedChangeActivitesByOperatorAndTime_'.$operatorId.'_'.$timeString,
             EasySeconds::hours(1),
             function () use ($operatorId, $timeString) {
                 return $this->request('GET', 'api/operatorChangeActivities', [], [
@@ -63,7 +62,7 @@ trait Changes
 
     public function waitingChangeActivitiesByOperatorId(string $operatorId)
     {
-        return Cacher::setAndGet("waitingChangeActivitiesByOperatorId_" . $operatorId, EasySeconds::hours(1),
+        return Cacher::setAndGet('waitingChangeActivitiesByOperatorId_'.$operatorId, EasySeconds::hours(1),
             function () use ($operatorId) {
                 return $this->request('GET', 'api/operatorChangeActivities', [], [
                     'open' => 'true',
@@ -71,7 +70,7 @@ trait Changes
                     'blocked' => 'false',
                     'archived' => 'false',
                     'operator' => $operatorId,
-                ])[ 'results' ];
+                ])['results'];
             });
     }
 }
