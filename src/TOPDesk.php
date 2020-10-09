@@ -89,7 +89,7 @@ class TOPDesk extends Api
                 'query' => $query,
             ], $options));
 
-            return $decode ? json_decode((string)$response->getBody(), true) : (string)$response->getBody();
+            return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
         } catch (ServerException $exception) {
             Log::error('TOPdesk Server Exception', [
                 'status' => $exception->getCode(),
@@ -99,7 +99,7 @@ class TOPDesk extends Api
 
             return $exception;
         } catch (ConnectException $exception) {
-            abort(500, "Connection to TOPdesk Failed");
+            abort(500, 'Connection to TOPdesk Failed');
         }
     }
 }
