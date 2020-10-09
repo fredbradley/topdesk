@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\Cacher\EasySeconds;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\TransferStats;
 
 trait Counts
@@ -11,10 +12,23 @@ trait Counts
     /**
      * @return int
      */
+    public function countTicketsLoggedtoday(): int
+    {
+        return Cacher::setAndGet('ticketsLoggedToday', EasySeconds::minutes(15), function () {
+            return $this->getNumIncidents([
+                'creation_date_start' => now()->format('Y-m-d'),
+            ]);
+        });
+    }
+
+    /**
+     * @return int
+     */
     public function countOpenTickets(): int
     {
         return Cacher::setAndGet('openTickets', EasySeconds::minutes(5), function () {
             return $this->getNumIncidents([
+                'fields' => 'id',
                 'resolved' => 'false',
             ]);
         });
@@ -53,7 +67,7 @@ trait Counts
      */
     public function countByProcessingStatusId(string $processingStatusId): int
     {
-        return Cacher::setAndGet('countByStatusId_'.$processingStatusId, EasySeconds::minutes(5),
+        return Cacher::setAndGet('countByStatusId_' . $processingStatusId, EasySeconds::minutes(5),
             function () use ($processingStatusId) {
                 return $this->getNumIncidents([
                     'processing_status' => $processingStatusId,
@@ -74,10 +88,10 @@ trait Counts
             foreach ($array as $key => $value) {
                 if (is_array($value)) {
                     foreach ($value as $subvalue) {
-                        $str .= $key.'='.$subvalue.'&';
+                        $str .= $key . '=' . $subvalue . '&';
                     }
                 } else {
-                    $str .= $key.'='.$value.'&';
+                    $str .= $key . '=' . $value . '&';
                 }
             }
         }
@@ -92,21 +106,25 @@ trait Counts
      */
     public function getNumIncidents(array $options = []): int
     {
-        $response = $this->client->request('GET', 'api/incidents', [
-            'query' => $this->convertArrayMergeToQueryString([
-                'start' => 0,
-                'page_size' => 10000,
-            ], $options),
-            'on_stats' => function (TransferStats $stats) use (&$url) {
-                $url = $stats->getEffectiveUri();
-            },
-        ]);
+        try {
+            $response = $this->client->request('GET', 'api/incidents', [
+                'query' => $this->convertArrayMergeToQueryString([
+                    'start' => 0,
+                    'page_size' => 10000,
+                ], $options),
+                'on_stats' => function (TransferStats $stats) use (&$url) {
+                    $url = $stats->getEffectiveUri();
+                },
+            ]);
 
-        if ($response->getStatusCode() === 204) {
-            return 0;
+            if ($response->getStatusCode() === 204) {
+                return 0;
+            }
+
+        } catch (ConnectException $exception) {
+            return false;
         }
-
-        return count(json_decode((string) $response->getBody(), true));
+        return count(json_decode((string)$response->getBody(), true));
     }
 
     /**
@@ -117,7 +135,8 @@ trait Counts
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
-        $incidents = Cacher::setAndGet('incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString, EasySeconds::minutes(5),
+        $incidents = Cacher::setAndGet('incidentsResolvedByOperatorAndTime_' . $operatorId . $timeString,
+            EasySeconds::minutes(5),
             function () use ($operatorId, $timeString) {
                 return $this->getNumIncidents([
                     'operator' => $operatorId,
@@ -126,7 +145,7 @@ trait Counts
                 ]);
             });
 
-        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)['results']);
+        $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)[ 'results' ]);
 
         return $incidents + $changes;
     }
@@ -138,7 +157,7 @@ trait Counts
      */
     public function countOpenTicketsByOperator(string $operatorId): int
     {
-        $incidents = Cacher::setAndGet('countOpenTicketsByOperator_'.$operatorId,
+        $incidents = Cacher::setAndGet('countOpenTicketsByOperator_' . $operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
                 return $this->getNumIncidents([
@@ -158,7 +177,7 @@ trait Counts
     public function countActiveTicketsbyOperator(string $operatorId): int
     {
         $incidents = Cacher::setAndGet(
-            'countActiveIncidentsByOperatorID_'.$operatorId,
+            'countActiveIncidentsByOperatorID_' . $operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
                 return $this->getNumIncidents([
@@ -182,7 +201,7 @@ trait Counts
      */
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
     {
-        return Cacher::setAndGet('countWaitingChangeActivitiesByOperator_'.$operatorId, EasySeconds::minutes(5),
+        return Cacher::setAndGet('countWaitingChangeActivitiesByOperator_' . $operatorId, EasySeconds::minutes(5),
             function () use ($operatorId) {
                 return count($this->waitingChangeActivitiesByOperatorId($operatorId));
             });
@@ -195,7 +214,7 @@ trait Counts
      */
     public function countTicketsByStatus(string $statusName): int
     {
-        return Cacher::setAndGet('countTicketsByStatus_'.$statusName, EasySeconds::minutes(5),
+        return Cacher::setAndGet('countTicketsByStatus_' . $statusName, EasySeconds::minutes(5),
             function () use ($statusName) {
                 $statusId = $this->getProcessingStatusId($statusName);
 

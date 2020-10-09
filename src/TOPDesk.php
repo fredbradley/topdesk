@@ -3,18 +3,20 @@
 namespace FredBradley\TOPDesk;
 
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
+use FredBradley\TOPDesk\Traits\Assets;
 use FredBradley\TOPDesk\Traits\Changes;
 use FredBradley\TOPDesk\Traits\Counts;
 use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Log;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
-    use Incidents, OperatorStats, Changes, Counts, Persons;
+    use Incidents, OperatorStats, Changes, Counts, Persons, Assets;
 
     /**
      * TOPDesk constructor.
@@ -27,11 +29,15 @@ class TOPDesk extends Api
     {
         $this->checkConfig();
 
-        parent::__construct($this->endpointWithTrailingSlash(), $retries, $guzzleOptions);
-        $this->useApplicationPassword(
-            config('topdesk.application_username'),
-            config('topdesk.application_password')
-        );
+        try {
+            parent::__construct($this->endpointWithTrailingSlash(), $retries, $guzzleOptions);
+            $this->useApplicationPassword(
+                config('topdesk.application_username'),
+                config('topdesk.application_password')
+            );
+        } catch (ConnectException $exception) {
+            dd('nope');
+        }
     }
 
     /**
@@ -83,7 +89,7 @@ class TOPDesk extends Api
                 'query' => $query,
             ], $options));
 
-            return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
+            return $decode ? json_decode((string)$response->getBody(), true) : (string)$response->getBody();
         } catch (ServerException $exception) {
             Log::error('TOPdesk Server Exception', [
                 'status' => $exception->getCode(),
@@ -92,6 +98,8 @@ class TOPDesk extends Api
             ]);
 
             return $exception;
+        } catch (ConnectException $exception) {
+            abort(500, "Connection to TOPdesk Failed");
         }
     }
 }
