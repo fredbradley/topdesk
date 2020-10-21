@@ -4,12 +4,28 @@
 namespace FredBradley\TOPDesk\Traits;
 
 
+use Illuminate\Support\Facades\Cache;
+
 /**
  * Trait Assets
  * @package FredBradley\TOPDesk\Traits
  */
 trait Assets
 {
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getAssetTemplateId(string $name)
+    {
+        return Cache::rememberForever('assetTemplateId_' . $name, function () use ($name) {
+            $return = $this->request('GET', 'api/assetmgmt/templates')[ 'dataSet' ];
+
+            return collect($return)->where('text', '=', $name)->first()[ 'id' ];
+        });
+    }
+
     /**
      * @param string $templateId
      * @param string $assetID
@@ -32,4 +48,5 @@ trait Assets
     {
         return $this->request("POST", "api/assetmgmt/assets/templateId/" . $templateId, $data);
     }
+
 }
