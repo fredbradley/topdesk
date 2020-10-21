@@ -1,14 +1,11 @@
 <?php
 
-
 namespace FredBradley\TOPDesk\Traits;
-
 
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Trait Assets
- * @package FredBradley\TOPDesk\Traits
+ * Trait Assets.
  */
 trait Assets
 {
@@ -35,7 +32,7 @@ trait Assets
      */
     public function updateAssetByTemplateId(string $templateId, string $assetID, array $data)
     {
-        return $this->request("PATCH", "api/assetmgmt/assets/templateId/" . $templateId . "/" . $assetID, $data);
+        return $this->request('PATCH', 'api/assetmgmt/assets/templateId/'.$templateId.'/'.$assetID, $data);
     }
 
     /**
@@ -46,7 +43,7 @@ trait Assets
      */
     public function createAssetByTemplateId(string $templateId, array $data)
     {
-        return $this->request("POST", "api/assetmgmt/assets/templateId/" . $templateId, $data);
+        return $this->request('POST', 'api/assetmgmt/assets/templateId/'.$templateId, $data);
     }
 
 }

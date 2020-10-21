@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
         return response()->json([
-            'loggedToday' => TOPDesk::countTicketsLoggedToday(),// + TOPDesk::countChangesLoggedToday(),
+            'loggedToday' => TOPDesk::countTicketsLoggedToday(), // + TOPDesk::countChangesLoggedToday(),
             'open' => TOPDesk::countOpenTickets() + count(TOPDesk::allOpenChangeActivities()),
             'unassigned' => TOPDesk::countUnassignedTickets() + count(TOPDesk::unassignedWaitingChangeActivities()),
             'logged' => TOPDesk::countTicketsByStatus('Logged'),
