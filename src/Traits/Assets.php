@@ -16,10 +16,10 @@ trait Assets
      */
     public function getAssetTemplateId(string $name)
     {
-        return Cache::rememberForever('assetTemplateId_' . $name, function () use ($name) {
-            $return = $this->request('GET', 'api/assetmgmt/templates')[ 'dataSet' ];
+        return Cache::rememberForever('assetTemplateId_'.$name, function () use ($name) {
+            $return = $this->request('GET', 'api/assetmgmt/templates')['dataSet'];
 
-            return collect($return)->where('text', '=', $name)->first()[ 'id' ];
+            return collect($return)->where('text', '=', $name)->first()['id'];
         });
     }
 
@@ -45,5 +45,4 @@ trait Assets
     {
         return $this->request('POST', 'api/assetmgmt/assets/templateId/'.$templateId, $data);
     }
-
 }
