@@ -93,6 +93,7 @@ class TOPDesk extends Api
         } catch (ServerException $exception) {
             Log::error('TOPdesk Server Exception', [
                 'status' => $exception->getCode(),
+                'message' => $exception->getMessage(),
                 'method' => $method,
                 'uri' => $uri,
             ]);
