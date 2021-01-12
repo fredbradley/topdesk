@@ -11,7 +11,7 @@ use FredBradley\Cacher\EasySeconds;
 trait OperatorStats
 {
     /**
-     * @param string $name
+     * @param  string  $name
      *
      * @return mixed
      */
@@ -34,8 +34,8 @@ trait OperatorStats
     }
 
     /**
-     * @param string $name
-     * @param array  $ignoreUsernames
+     * @param  string  $name
+     * @param  array  $ignoreUsernames
      *
      * @return array
      */
@@ -45,8 +45,8 @@ trait OperatorStats
 
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
+            if (! in_array($operator[ 'networkLoginName' ], $ignoreUsernames)) {
+                $results[ $operator[ 'networkLoginName' ] ] = $this->countOpenTicketsByOperator($operator[ 'id' ]);
             }
         }
 
@@ -54,8 +54,8 @@ trait OperatorStats
     }
 
     /**
-     * @param string $name
-     * @param array  $ignoreUsernames
+     * @param  string  $name
+     * @param  array  $ignoreUsernames
      *
      * @return array
      */
@@ -64,8 +64,8 @@ trait OperatorStats
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countActiveTicketsByOperator($operator['id']);
+            if (! in_array($operator[ 'networkLoginName' ], $ignoreUsernames)) {
+                $results[ $operator[ 'networkLoginName' ] ] = $this->countActiveTicketsByOperator($operator[ 'id' ]);
             }
         }
 
@@ -73,7 +73,7 @@ trait OperatorStats
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      *
      * @return array
      */
@@ -82,14 +82,66 @@ trait OperatorStats
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                foreach (['day', 'week', 'month', 'year'] as $timeSpan) {
-                    $results[$operator['networkLoginName']][$timeSpan] = $this->countResolvesByTime($operator['id'],
-                        $timeSpan);
-                }
+            if (! in_array($operator[ 'networkLoginName' ], $ignoreUsernames)) {
+                $results[$operator['networkLoginName']] = $this->getResolvedIncidentsForOperator($operator['id']);
             }
         }
 
         return $results;
+    }
+
+    private function getResolvedIncidentsForOperator($operatorId)
+    {
+        return Cacher::setAndGet('resolvedIncidentsByOperator_'.$operatorId, EasySeconds::minutes(5),
+            function () use ($operatorId) {
+                $results = collect($this->getIncidents([
+                    "operator" => $operatorId,
+                ]));
+
+                return [
+                    'closed_day' => $results->where("closedDate", ">", now()->startOfDay())->count(),
+                    'closed_week' => $results->where("closedDate", ">", now()->startOf('week'))->count(),
+                    'closed_month' => $results->where("closedDate", ">", now()->startOfMonth())->count(),
+                    'closed_total' => $results->where("closed", "=", true)->count(),
+                    'open' => $results->where("closed", "!=", true)->count(),
+                ];
+            });
+    }
+
+    private function getResolvedChangeActivitiesForOperator($operatorId)
+    {
+        return Cacher::setAndGet('resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
+            EasySeconds::minutes(1),
+            function () use ($operatorId) {
+                $results = collect($this->request('GET', 'api/operatorChangeActivities', [], [
+                    'open' => 'false',
+                    'operator' => $operatorId,
+                    'pageSize' => 1000,
+                ])[ 'results' ]);
+
+                return [
+                    'closed_day' => $results->where("processingStatus", "!=", "skipped")->where("finalDate", ">", now()->startOfDay())->count(),
+                    'closed_week' => $results->where("processingStatus", "!=", "skipped")->where("finalDate", ">", now()->startOf('week'))->count(),
+                    'closed_month' => $results->where("processingStatus", "!=", "skipped")->where("finalDate", ">", now()->startOfMonth())->count(),
+                    'closed_total' => $results->where("processingStatus", "!=", "skipped")->where("finalDate", "=", true)->count(),
+                ];
+            });
+    }
+
+    public function getResolvedTicketsForOperator($operatorId): array
+    {
+        return $this->sumTwoArrays($this->getResolvedIncidentsForOperator($operatorId),
+            $this->getResolvedChangeActivitiesForOperator($operatorId));
+    }
+
+    private function sumTwoArrays(array $arrayOne, array $arrayTwo): array
+    {
+        $sums = [];
+
+        foreach (array_keys($arrayOne + $arrayTwo) as $total) {
+            $sums[ $total ] = (isset($arrayOne[ $total ]) ? $arrayOne[ $total ] : 0) + (isset($arrayTwo) ? $arrayTwo[ $total ] : 0);
+        }
+
+        return $sums;
     }
 }

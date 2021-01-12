@@ -130,7 +130,7 @@ trait Counts
     /**
      * @param array $options
      *
-     * @return int
+     * @return array
      */
     public function getIncidents(array $options = []): array
     {
