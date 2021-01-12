@@ -128,6 +128,33 @@ trait Counts
     }
 
     /**
+     * @param array $options
+     *
+     * @return int
+     */
+    public function getIncidents(array $options = []): int
+    {
+        try {
+            $response = $this->client->request('GET', 'api/incidents', [
+                'query' => $this->convertArrayMergeToQueryString([
+                    'start' => 0,
+                    'page_size' => 10000,
+                ], $options),
+                'on_stats' => function (TransferStats $stats) use (&$url) {
+                    $url = $stats->getEffectiveUri();
+                },
+            ]);
+
+            if ($response->getStatusCode() === 204) {
+                return 0;
+            }
+        } catch (ConnectException $exception) {
+            return false;
+        }
+
+        return json_decode((string) $response->getBody(), true);
+    }
+    /**
      * @param string $operatorId
      * @param string $timeString
      *

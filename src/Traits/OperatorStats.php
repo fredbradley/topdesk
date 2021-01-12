@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\Cacher\EasySeconds;
+use Number\Number;
 
 /**
  * Trait OperatorStats.
@@ -41,9 +42,7 @@ trait OperatorStats
      */
     public function openCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
-        $operators = Cacher::setAndGet('getOperatorsForITServices', EasySeconds::minutes(7), function () use ($name) {
-            return $this->getOperatorsByOperatorGroup($name);
-        });
+        $operators = $this->getOperatorsByOperatorGroup($name);
 
         $results = [];
         foreach ($operators as $operator) {
@@ -51,6 +50,7 @@ trait OperatorStats
                 $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
             }
         }
+
 
         return $results;
     }
