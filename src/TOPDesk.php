@@ -10,8 +10,6 @@ use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ServerException;
-use Illuminate\Support\Facades\Log;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
