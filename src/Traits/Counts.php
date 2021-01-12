@@ -132,7 +132,7 @@ trait Counts
      *
      * @return int
      */
-    public function getIncidents(array $options = []): int
+    public function getIncidents(array $options = []): array
     {
         try {
             $response = $this->client->request('GET', 'api/incidents', [
