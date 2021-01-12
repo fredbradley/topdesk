@@ -154,6 +154,7 @@ trait Counts
 
         return json_decode((string) $response->getBody(), true);
     }
+
     /**
      * @param string $operatorId
      * @param string $timeString
