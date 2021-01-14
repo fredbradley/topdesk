@@ -7,6 +7,7 @@ Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
         $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
             ['HELPDESK']))->sortByDesc('closed_week');
+
         return response()->json([
             'unresolvedIncidents' => TOPDesk::countOpenTickets(),
             'openChangeActivities' => count(TOPDesk::allOpenChangeActivities()),
@@ -20,13 +21,13 @@ Route::group(['prefix' => 'api/topdesk'], function () {
             'dueThisWeek' => TOPDesk::countTicketsDueThisWeek(),
             'breachedTickets' => TOPDesk::countBreachedTickets(),
             'usersClosedCounts' => $userClosedCounts,
-            'collectiveClosesByDay' => $userClosedCounts->map(function($item) {
+            'collectiveClosesByDay' => $userClosedCounts->map(function ($item) {
                 return $item['closed_day'];
             })->sum(),
-            'collectiveClosesByWeek' => $userClosedCounts->map(function($item) {
+            'collectiveClosesByWeek' => $userClosedCounts->map(function ($item) {
                 return $item['closed_week'];
             })->sum(),
-            'collectiveClosesByTotal' => $userClosedCounts->map(function($item) {
+            'collectiveClosesByTotal' => $userClosedCounts->map(function ($item) {
                 return $item['closed_total'];
             })->sum(),
         ]);
