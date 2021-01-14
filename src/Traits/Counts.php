@@ -146,7 +146,7 @@ trait Counts
             ]);
 
             if ($response->getStatusCode() === 204) {
-                return 0;
+                return [];
             }
         } catch (ConnectException $exception) {
             return false;

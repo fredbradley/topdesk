@@ -6,10 +6,10 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
         return response()->json([
+            'unresolvedIncidents' => TOPDesk::countOpenTickets(),
+            'openChangeActivities' => count(TOPDesk::allOpenChangeActivities()),
             'loggedToday' => TOPDesk::countTicketsLoggedToday(), // + TOPDesk::countChangesLoggedToday(),
-            'open' => TOPDesk::countOpenTickets() + count(TOPDesk::allOpenChangeActivities()),
             'unassigned' => TOPDesk::countUnassignedTickets() + count(TOPDesk::unassignedWaitingChangeActivities()),
-            'logged' => TOPDesk::countTicketsByStatus('Logged'),
             'inProgress' => TOPDesk::countTicketsByStatus('In progress'),
             'waitingForUser' => TOPDesk::countTicketsByStatus('Waiting for user'),
             'updatedByUser' => TOPDesk::countTicketsByStatus('Updated by user'),
@@ -17,12 +17,8 @@ Route::group(['prefix' => 'api/topdesk'], function () {
             'scheduled' => TOPDesk::countTicketsByStatus('Scheduled'),
             'dueThisWeek' => TOPDesk::countTicketsDueThisWeek(),
             'breachedTickets' => TOPDesk::countBreachedTickets(),
-            'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
-                ['TNSCSUPPORT', 'HELPDESK']),
-            'usersActiveCounts' => TOPDesk::activeCountsForOperatorGroup('I.T. Services',
-                ['TNSCSUPPORT', 'HELPDESK']),
-            'usersOpenCounts' => TOPDesk::openCountsForOperatorGroup('I.T. Services',
-                ['TNSCSUPPORT', 'HELPDESK']),
+            'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services'),
+//                ['TNSCSUPPORT', 'HELPDESK']),
         ]);
     });
 });
