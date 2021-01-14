@@ -72,7 +72,6 @@ trait OperatorStats
         return $results;
     }
 
-
     /**
      * @param  string  $name
      * @param  array  $ignoreUsernames
@@ -141,7 +140,7 @@ trait OperatorStats
                     'closed_week' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOf('week'))->count(),
                     'closed_month' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOfMonth())->count(),
                     'closed_total' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '=', true)->count(),
-                    'open' => null
+                    'open' => null,
                 ];
             });
     }
