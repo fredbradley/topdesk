@@ -72,8 +72,10 @@ trait OperatorStats
         return $results;
     }
 
+
     /**
      * @param  string  $name
+     * @param  array  $ignoreUsernames
      *
      * @return array
      */
@@ -81,15 +83,21 @@ trait OperatorStats
     {
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
+
         foreach ($operators as $operator) {
             if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->getResolvedIncidentsForOperator($operator['id']);
+                $results[$operator['networkLoginName']] = $this->getResolvedTicketsForOperator($operator['id']);
             }
         }
 
         return $results;
     }
 
+    /**
+     * @param $operatorId
+     *
+     * @return \Closure|mixed
+     */
     private function getResolvedIncidentsForOperator($operatorId)
     {
         return Cacher::setAndGet('resolvedIncidentsByOperator_'.$operatorId, EasySeconds::minutes(5),
@@ -108,6 +116,15 @@ trait OperatorStats
             });
     }
 
+    /**
+     * Gets all closed change activities, and separates them into day, week, month, total array.
+     * Have to have 'open' as a key, because of the calculation at self::getResolvedTicketsForOperator
+     * In the collection we are then also only showing change activities that are not skipped!
+     *
+     * @param $operatorId
+     *
+     * @return \Closure|mixed
+     */
     private function getResolvedChangeActivitiesForOperator($operatorId)
     {
         return Cacher::setAndGet('resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
@@ -124,16 +141,30 @@ trait OperatorStats
                     'closed_week' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOf('week'))->count(),
                     'closed_month' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOfMonth())->count(),
                     'closed_total' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '=', true)->count(),
+                    'open' => null
                 ];
             });
     }
 
+    /**
+     * Is the sum of Incidents and Change Activities...
+     *
+     * @param $operatorId
+     *
+     * @return array
+     */
     public function getResolvedTicketsForOperator($operatorId): array
     {
         return $this->sumTwoArrays($this->getResolvedIncidentsForOperator($operatorId),
             $this->getResolvedChangeActivitiesForOperator($operatorId));
     }
 
+    /**
+     * @param  array  $arrayOne
+     * @param  array  $arrayTwo
+     *
+     * @return array
+     */
     private function sumTwoArrays(array $arrayOne, array $arrayTwo): array
     {
         $sums = [];
