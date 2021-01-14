@@ -17,8 +17,8 @@ Route::group(['prefix' => 'api/topdesk'], function () {
             'scheduled' => TOPDesk::countTicketsByStatus('Scheduled'),
             'dueThisWeek' => TOPDesk::countTicketsDueThisWeek(),
             'breachedTickets' => TOPDesk::countBreachedTickets(),
-            'usersClosedCounts' => TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
-                ['HELPDESK']),
+            'usersClosedCounts' => collect(TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
+                ['HELPDESK']))->sortByDesc('closed_week'),
         ]);
     });
 });
