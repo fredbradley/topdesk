@@ -10,6 +10,8 @@ use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Facades\Log;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
@@ -90,6 +92,11 @@ class TOPDesk extends Api
             return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
         } catch (ConnectException $exception) {
             abort(500, 'Connection to TOPdesk Failed');
+        } catch (ServerException $exception) {
+            if ($exception->getCode()===503) {
+                Log::info("TOPdesk is unavailable");
+            }
+            abort(417, 'TOPdesk is unavailable at this time...');
         }
     }
 }
