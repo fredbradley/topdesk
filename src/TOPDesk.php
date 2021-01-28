@@ -93,8 +93,8 @@ class TOPDesk extends Api
         } catch (ConnectException $exception) {
             abort(500, 'Connection to TOPdesk Failed');
         } catch (ServerException $exception) {
-            if ($exception->getCode()===503) {
-                Log::info("TOPdesk is unavailable");
+            if ($exception->getCode() === 503) {
+                Log::info('TOPdesk is unavailable');
             }
             abort(417, 'TOPdesk is unavailable at this time...');
         }
