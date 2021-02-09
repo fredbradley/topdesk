@@ -258,6 +258,7 @@ trait Counts
         return Cacher::setAndGet('countUnassignedITTickets', EasySeconds::minutes(5), function () {
             return $this->getNumIncidents([
                 'operator' => $this->getOperatorGroupId('I.T. Services'),
+                'resolved' => 'false',
             ]);
         });
     }
