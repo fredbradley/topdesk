@@ -19,7 +19,9 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cacher::setAndGet('get_operators_'.$operatorGroupId, EasySeconds::weeks(1),
+        return Cacher::setAndGet(
+            'get_operators_'.$operatorGroupId,
+            EasySeconds::weeks(1),
             function () use ($operatorGroupId) {
                 return $this->request(
                     'GET',
@@ -30,7 +32,8 @@ trait OperatorStats
                         'query' => '(operatorGroup.id=='.$operatorGroupId.')',
                     ]
                 );
-            });
+            }
+        );
     }
 
     /**
@@ -99,7 +102,9 @@ trait OperatorStats
      */
     private function getResolvedIncidentsForOperator($operatorId)
     {
-        return Cacher::setAndGet('resolvedIncidentsByOperator_'.$operatorId, EasySeconds::minutes(5),
+        return Cacher::setAndGet(
+            'resolvedIncidentsByOperator_'.$operatorId,
+            EasySeconds::minutes(5),
             function () use ($operatorId) {
                 $results = collect($this->getIncidents([
                     'operator' => $operatorId,
@@ -112,7 +117,8 @@ trait OperatorStats
                     'closed_total' => $results->where('closed', '=', true)->count(),
                     'open' => $results->where('closed', '!=', true)->count(),
                 ];
-            });
+            }
+        );
     }
 
     /**
@@ -126,7 +132,8 @@ trait OperatorStats
      */
     private function getResolvedChangeActivitiesForOperator($operatorId)
     {
-        return Cacher::setAndGet('resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
+        return Cacher::setAndGet(
+            'resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
             EasySeconds::minutes(1),
             function () use ($operatorId) {
                 $results = collect($this->request('GET', 'api/operatorChangeActivities', [], [
@@ -142,7 +149,8 @@ trait OperatorStats
                     'closed_total' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '=', true)->count(),
                     'open' => null,
                 ];
-            });
+            }
+        );
     }
 
     /**
@@ -154,8 +162,10 @@ trait OperatorStats
      */
     public function getResolvedTicketsForOperator($operatorId): array
     {
-        return $this->sumTwoArrays($this->getResolvedIncidentsForOperator($operatorId),
-            $this->getResolvedChangeActivitiesForOperator($operatorId));
+        return $this->sumTwoArrays(
+            $this->getResolvedIncidentsForOperator($operatorId),
+            $this->getResolvedChangeActivitiesForOperator($operatorId)
+        );
     }
 
     /**

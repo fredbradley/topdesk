@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
-        $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup('I.T. Services',
-            ['HELPDESK']))->sortByDesc('closed_week');
+        $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup(
+            'I.T. Services',
+            ['HELPDESK']
+        ))->sortByDesc('closed_week');
 
         return response()->json([
             'unresolvedIncidents' => TOPDesk::countOpenTickets(),

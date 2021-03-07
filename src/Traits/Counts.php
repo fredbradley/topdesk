@@ -67,12 +67,15 @@ trait Counts
      */
     public function countByProcessingStatusId(string $processingStatusId): int
     {
-        return Cacher::setAndGet('countByStatusId_'.$processingStatusId, EasySeconds::minutes(5),
+        return Cacher::setAndGet(
+            'countByStatusId_'.$processingStatusId,
+            EasySeconds::minutes(5),
             function () use ($processingStatusId) {
                 return $this->getNumIncidents([
                     'processing_status' => $processingStatusId,
                 ]);
-            });
+            }
+        );
     }
 
     /**
@@ -163,7 +166,8 @@ trait Counts
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
-        $incidents = Cacher::setAndGet('incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString,
+        $incidents = Cacher::setAndGet(
+            'incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString,
             EasySeconds::minutes(5),
             function () use ($operatorId, $timeString) {
                 return $this->getNumIncidents([
@@ -171,7 +175,8 @@ trait Counts
                     'resolved' => 'true',
                     'closed_date_start' => now()->startOf($timeString)->format('Y-m-d'),
                 ]);
-            });
+            }
+        );
 
         $changes = count($this->resolvedChangeActivitiesByOperatorIdByTime($operatorId, $timeString)['results']);
 
@@ -185,14 +190,16 @@ trait Counts
      */
     public function countOpenTicketsByOperator(string $operatorId): int
     {
-        $incidents = Cacher::setAndGet('countOpenTicketsByOperator_'.$operatorId,
+        $incidents = Cacher::setAndGet(
+            'countOpenTicketsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
                 return $this->getNumIncidents([
                     'operator' => $operatorId,
                     'resolved' => 'false',
                 ]);
-            });
+            }
+        );
 
         return $incidents + $this->countWaitingChangeActivitiesByOperatorId($operatorId);
     }
@@ -217,7 +224,8 @@ trait Counts
                         $this->getProcessingStatusId('Updated by user'),
                     ],
                 ]);
-            });
+            }
+        );
 
         return $incidents + $this->countWaitingChangeActivitiesByOperatorId($operatorId);
     }
@@ -229,10 +237,13 @@ trait Counts
      */
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
     {
-        return Cacher::setAndGet('countWaitingChangeActivitiesByOperator_'.$operatorId, EasySeconds::minutes(5),
+        return Cacher::setAndGet(
+            'countWaitingChangeActivitiesByOperator_'.$operatorId,
+            EasySeconds::minutes(5),
             function () use ($operatorId) {
                 return count($this->waitingChangeActivitiesByOperatorId($operatorId));
-            });
+            }
+        );
     }
 
     /**
@@ -242,12 +253,15 @@ trait Counts
      */
     public function countTicketsByStatus(string $statusName): int
     {
-        return Cacher::setAndGet('countTicketsByStatus_'.$statusName, EasySeconds::minutes(5),
+        return Cacher::setAndGet(
+            'countTicketsByStatus_'.$statusName,
+            EasySeconds::minutes(5),
             function () use ($statusName) {
                 $statusId = $this->getProcessingStatusId($statusName);
 
                 return $this->countByProcessingStatusId($statusId);
-            });
+            }
+        );
     }
 
     /**
