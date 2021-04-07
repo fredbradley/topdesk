@@ -78,8 +78,8 @@ class TOPDeskServiceProvider extends ServiceProvider
         ], 'topdesk.views');*/
 
         // Registering package commands.
-         $this->commands([
-             GetTopDeskCounts::class
-         ]);
+        $this->commands([
+            GetTopDeskCounts::class,
+        ]);
     }
 }

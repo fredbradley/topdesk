@@ -2,12 +2,10 @@
 
 namespace FredBradley\TOPDesk\Commands;
 
-
 use FredBradley\Cacher\EasySeconds;
+use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use FredBradley\TOPDesk\Facades\TOPDesk;
-
 
 class GetTopDeskCounts extends Command
 {
@@ -42,7 +40,7 @@ class GetTopDeskCounts extends Command
      */
     public function handle()
     {
-        $cache = Cache::remember("topdeskApiCounts",
+        $cache = Cache::remember('topdeskApiCounts',
             EasySeconds::minutes(5), function () {
                 $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup(
                     'I.T. Services',
@@ -63,16 +61,17 @@ class GetTopDeskCounts extends Command
                     'breachedTickets' => TOPDesk::countBreachedTickets(),
                     'usersClosedCounts' => $userClosedCounts,
                     'collectiveClosesByDay' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_day' ];
+                        return $item['closed_day'];
                     })->sum(),
                     'collectiveClosesByWeek' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_week' ];
+                        return $item['closed_week'];
                     })->sum(),
                     'collectiveClosesByTotal' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_total' ];
+                        return $item['closed_total'];
                     })->sum(),
                 ]);
             });
+
         return 0;
     }
 }
