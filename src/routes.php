@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'api/topdesk'], function () {
     Route::get('counts', function () {
-        return \Illuminate\Support\Facades\Cache::remember("topdeskApiRoutes",
+        return \Illuminate\Support\Facades\Cache::remember('topdeskApiRoutes',
             \FredBradley\Cacher\EasySeconds::minutes(5), function () {
                 $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup(
                     'I.T. Services',
@@ -26,13 +26,13 @@ Route::group(['prefix' => 'api/topdesk'], function () {
                     'breachedTickets' => TOPDesk::countBreachedTickets(),
                     'usersClosedCounts' => $userClosedCounts,
                     'collectiveClosesByDay' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_day' ];
+                        return $item['closed_day'];
                     })->sum(),
                     'collectiveClosesByWeek' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_week' ];
+                        return $item['closed_week'];
                     })->sum(),
                     'collectiveClosesByTotal' => $userClosedCounts->map(function ($item) {
-                        return $item[ 'closed_total' ];
+                        return $item['closed_total'];
                     })->sum(),
                 ]);
             });
