@@ -2,6 +2,7 @@
 
 namespace FredBradley\TOPDesk;
 
+use FredBradley\TOPDesk\Commands\GetTopDeskCounts;
 use Illuminate\Support\ServiceProvider;
 
 class TOPDeskServiceProvider extends ServiceProvider
@@ -77,6 +78,8 @@ class TOPDeskServiceProvider extends ServiceProvider
         ], 'topdesk.views');*/
 
         // Registering package commands.
-        // $this->commands([]);
+         $this->commands([
+             GetTopDeskCounts::class
+         ]);
     }
 }
