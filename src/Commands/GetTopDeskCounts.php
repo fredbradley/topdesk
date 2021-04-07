@@ -60,13 +60,13 @@ class GetTopDeskCounts extends Command
                 'breachedTickets' => TOPDesk::countBreachedTickets(),
                 'usersClosedCounts' => $userClosedCounts,
                 'collectiveClosesByDay' => $userClosedCounts->map(function ($item) {
-                    return $item[ 'closed_day' ];
+                    return $item['closed_day'];
                 })->sum(),
                 'collectiveClosesByWeek' => $userClosedCounts->map(function ($item) {
-                    return $item[ 'closed_week' ];
+                    return $item['closed_week'];
                 })->sum(),
                 'collectiveClosesByTotal' => $userClosedCounts->map(function ($item) {
-                    return $item[ 'closed_total' ];
+                    return $item['closed_total'];
                 })->sum(),
             ]);
         });
