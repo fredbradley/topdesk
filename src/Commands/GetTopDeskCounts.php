@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Cache;
 
 class GetTopDeskCounts extends Command
 {
+    public static $cacheKey = 'topdeskApiCounts';
+
     /**
      * The name and signature of the console command.
      *
@@ -39,8 +41,9 @@ class GetTopDeskCounts extends Command
      */
     public function handle()
     {
-        Cache::forget('topdeskApiCounts');
-        Cache::rememberForever('topdeskApiCounts', function () {
+        Cache::forget(self::$cacheKey);
+
+        Cache::rememberForever(self::$cacheKey, function () {
             $userClosedCounts = collect(TOPDesk::resolveCountsForOperatorGroup(
                 'I.T. Services',
                 ['HELPDESK']
