@@ -3,7 +3,7 @@
 namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
-use FredBradley\Cacher\EasySeconds;
+use FredBradley\EasyTime\EasySeconds;
 
 /**
  * Trait Incidents.
