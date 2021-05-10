@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+
 /**
  * Trait OperatorStats.
  */
@@ -51,7 +52,6 @@ trait OperatorStats
                 $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
             }
         }
-
 
         return $results;
     }
