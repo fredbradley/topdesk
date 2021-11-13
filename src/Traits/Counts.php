@@ -61,8 +61,7 @@ trait Counts
     }
 
     /**
-     * @param string $processingStatusId
-     *
+     * @param  string  $processingStatusId
      * @return int
      */
     public function countByProcessingStatusId(string $processingStatusId): int
@@ -79,9 +78,8 @@ trait Counts
     }
 
     /**
-     * @param array $firstArray
-     * @param array $mergeFrom
-     *
+     * @param  array  $firstArray
+     * @param  array  $mergeFrom
      * @return string
      */
     private function convertArrayMergeToQueryString(array $firstArray, array $mergeFrom): string
@@ -103,8 +101,7 @@ trait Counts
     }
 
     /**
-     * @param array $options
-     *
+     * @param  array  $options
      * @return int
      */
     public function getNumIncidents(array $options = []): int
@@ -131,8 +128,7 @@ trait Counts
     }
 
     /**
-     * @param array $options
-     *
+     * @param  array  $options
      * @return array
      */
     public function getIncidents(array $options = []): array
@@ -159,9 +155,8 @@ trait Counts
     }
 
     /**
-     * @param string $operatorId
-     * @param string $timeString
-     *
+     * @param  string  $operatorId
+     * @param  string  $timeString
      * @return int
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
@@ -184,8 +179,7 @@ trait Counts
     }
 
     /**
-     * @param string $operatorId
-     *
+     * @param  string  $operatorId
      * @return mixed
      */
     public function countOpenTicketsByOperator(string $operatorId): int
@@ -205,8 +199,7 @@ trait Counts
     }
 
     /**
-     * @param string $operatorId
-     *
+     * @param  string  $operatorId
      * @return int
      */
     public function countActiveTicketsbyOperator(string $operatorId): int
@@ -231,8 +224,7 @@ trait Counts
     }
 
     /**
-     * @param string $operatorId
-     *
+     * @param  string  $operatorId
      * @return int
      */
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
@@ -247,8 +239,7 @@ trait Counts
     }
 
     /**
-     * @param string $statusName
-     *
+     * @param  string  $statusName
      * @return int
      */
     public function countTicketsByStatus(string $statusName): int

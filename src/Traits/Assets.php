@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Cache;
 trait Assets
 {
     /**
-     * @param string $name
-     *
+     * @param  string  $name
      * @return mixed
      */
     public function getAssetTemplateId(string $name)
@@ -24,10 +23,9 @@ trait Assets
     }
 
     /**
-     * @param string $templateId
-     * @param string $assetID
-     * @param array  $data
-     *
+     * @param  string  $templateId
+     * @param  string  $assetID
+     * @param  array  $data
      * @return mixed
      */
     public function updateAssetByTemplateId(string $templateId, string $assetID, array $data)
@@ -36,9 +34,8 @@ trait Assets
     }
 
     /**
-     * @param string $templateId
-     * @param array  $data
-     *
+     * @param  string  $templateId
+     * @param  array  $data
      * @return mixed
      */
     public function createAssetByTemplateId(string $templateId, array $data)

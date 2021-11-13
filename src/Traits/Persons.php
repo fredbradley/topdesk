@@ -5,8 +5,7 @@ namespace FredBradley\TOPDesk\Traits;
 trait Persons
 {
     /**
-     * @param string $username
-     *
+     * @param  string  $username
      * @return mixed
      */
     public function getPersonByUsername(string $username)

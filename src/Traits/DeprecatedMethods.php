@@ -6,6 +6,7 @@ trait DeprecatedMethods
 {
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countWaitingForUserTickets(): int
@@ -15,6 +16,7 @@ trait DeprecatedMethods
 
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countUpdatedByUserTickets(): int
@@ -24,6 +26,7 @@ trait DeprecatedMethods
 
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countWaitingForSupplier(): int
@@ -33,6 +36,7 @@ trait DeprecatedMethods
 
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countScheduledTickets(): int
@@ -42,6 +46,7 @@ trait DeprecatedMethods
 
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countInProgressTickets(): int
@@ -51,6 +56,7 @@ trait DeprecatedMethods
 
     /**
      * @return int
+     *
      * @deprecated
      */
     public function countLoggedTickets(): int

@@ -21,9 +21,9 @@ class TOPDesk extends Api
     /**
      * TOPDesk constructor.
      *
-     * @param string $endpoint
-     * @param int    $retries
-     * @param array  $guzzleOptions
+     * @param  string  $endpoint
+     * @param  int  $retries
+     * @param  array  $guzzleOptions
      */
     public function __construct($endpoint = 'https://partnerships.topdesk.net/tas/', $retries = 5, $guzzleOptions = [])
     {
@@ -62,15 +62,18 @@ class TOPDesk extends Api
 
     /**
      * @param  string  $string
-     *
      * @return mixed
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getArchiveReasonId(string $string) {
+    public function getArchiveReasonId(string $string)
+    {
         $result = self::request('GET', 'api/archiving-reasons');
         $results = collect($result);
-        return $results->where("name", $string)->first()['id'];
+
+        return $results->where('name', $string)->first()['id'];
     }
+
     /**
      * Let's hold the end users hands,
      * and if they fall at the first hurdle,
@@ -85,13 +88,15 @@ class TOPDesk extends Api
 
     /**
      * Shorthand function to create requests with JSON body and query parameters.
+     *
      * @param $method
-     * @param string $uri
-     * @param array $json
-     * @param array $query
-     * @param array $options
-     * @param bool $decode JSON decode response body (defaults to true).
+     * @param  string  $uri
+     * @param  array  $json
+     * @param  array  $query
+     * @param  array  $options
+     * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function request($method, $uri = '', array $json = [], array $query = [], array $options = [], $decode = true)

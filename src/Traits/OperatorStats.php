@@ -12,7 +12,6 @@ trait OperatorStats
 {
     /**
      * @param  string  $name
-     *
      * @return mixed
      */
     public function getOperatorsByOperatorGroup(string $name)
@@ -39,7 +38,6 @@ trait OperatorStats
     /**
      * @param  string  $name
      * @param  array  $ignoreUsernames
-     *
      * @return array
      */
     public function openCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
@@ -59,7 +57,6 @@ trait OperatorStats
     /**
      * @param  string  $name
      * @param  array  $ignoreUsernames
-     *
      * @return array
      */
     public function activeCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
@@ -78,7 +75,6 @@ trait OperatorStats
     /**
      * @param  string  $name
      * @param  array  $ignoreUsernames
-     *
      * @return array
      */
     public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
@@ -97,7 +93,6 @@ trait OperatorStats
 
     /**
      * @param $operatorId
-     *
      * @return \Closure|mixed
      */
     private function getResolvedIncidentsForOperator($operatorId)
@@ -127,7 +122,6 @@ trait OperatorStats
      * In the collection we are then also only showing change activities that are not skipped!
      *
      * @param $operatorId
-     *
      * @return \Closure|mixed
      */
     private function getResolvedChangeActivitiesForOperator($operatorId)
@@ -157,7 +151,6 @@ trait OperatorStats
      * Is the sum of Incidents and Change Activities...
      *
      * @param $operatorId
-     *
      * @return array
      */
     public function getResolvedTicketsForOperator($operatorId): array
@@ -171,7 +164,6 @@ trait OperatorStats
     /**
      * @param  array  $arrayOne
      * @param  array  $arrayTwo
-     *
      * @return array
      */
     private function sumTwoArrays(array $arrayOne, array $arrayTwo): array

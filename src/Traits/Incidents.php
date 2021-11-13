@@ -11,8 +11,7 @@ use FredBradley\EasyTime\EasySeconds;
 trait Incidents
 {
     /**
-     * @param string $username
-     *
+     * @param  string  $username
      * @return array
      */
     public function getOperatorByUsername(string $username): array
@@ -31,8 +30,7 @@ trait Incidents
     }
 
     /**
-     * @param string $name
-     *
+     * @param  string  $name
      * @return mixed
      */
     public function getOperatorGroupId(string $name): string
@@ -45,8 +43,7 @@ trait Incidents
     }
 
     /**
-     * @param string $name
-     *
+     * @param  string  $name
      * @return string
      */
     public function getProcessingStatusId(string $name): string
@@ -57,8 +54,7 @@ trait Incidents
     }
 
     /**
-     * @param string $name
-     *
+     * @param  string  $name
      * @return array
      */
     public function getProcessingStatus(string $name): array
