@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -25,7 +26,7 @@ trait Incidents
             ]);
 
             if (is_null($result)) {
-                throw new \Exception('Could not find an operator with the username: '.$username, 422);
+                throw new OperatorNotFound('Could not find an operator with the username: '.$username, 422);
             }
 
             if (count($result) == 1) {
