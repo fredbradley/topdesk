@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Trait Incidents.
@@ -17,6 +18,7 @@ trait Incidents
     public function getOperatorByUsername(string $username): array
     {
         return Cacher::setAndGet('operator_'.$username, EasySeconds::months(1), function () use ($username) {
+            Log::debug('Searching for Operator: '.$username);
             $result = $this->request('GET', 'api/operators', [], [
                 'page_size' => 1,
                 'query' => '(networkLoginName=='.$username.')',
