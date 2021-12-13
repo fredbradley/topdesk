@@ -25,7 +25,7 @@ trait Incidents
             ]);
 
             if (is_null($result)) {
-                throw new \Exception("Could not find an operator with the username: ".$username, 422);
+                throw new \Exception('Could not find an operator with the username: '.$username, 422);
             }
 
             if (count($result) == 1) {
