@@ -23,6 +23,11 @@ trait Incidents
                 'page_size' => 1,
                 'query' => '(networkLoginName=='.$username.')',
             ]);
+
+            if (is_null($result)) {
+                throw new \Exception("Could not find an operator with the username: ".$username, 422);
+            }
+
             if (count($result) == 1) {
                 return $result[0];
             }
