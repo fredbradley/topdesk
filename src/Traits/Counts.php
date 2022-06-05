@@ -4,8 +4,10 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+use FredBradley\TOPDesk\Facades\TOPDesk;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\TransferStats;
+use Illuminate\Support\Facades\Http;
 
 trait Counts
 {
@@ -14,7 +16,7 @@ trait Counts
      */
     public function countTicketsLoggedtoday(): int
     {
-        return Cacher::setAndGet('ticketsLoggedToday', EasySeconds::minutes(15), function () {
+        return Cacher::remember('ticketsLoggedToday', EasySeconds::minutes(15), function () {
             return $this->getNumIncidents([
                 'creation_date_start' => now()->format('Y-m-d'),
             ]);
@@ -24,10 +26,13 @@ trait Counts
     /**
      * @return int
      */
-    public function countOpenTickets(): int
+    public function countOpenTickets(string $operatorGroupName="Facilities", bool $forgetCache=false): int
     {
-        return Cacher::setAndGet('openTickets', EasySeconds::minutes(5), function () {
+        $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
+
+        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
+                'operator' => self::getOperatorGroupId($operatorGroupName),
                 'fields' => 'id',
                 'resolved' => 'false',
             ]);
@@ -39,7 +44,7 @@ trait Counts
      */
     public function countTicketsDueThisWeek(): int
     {
-        return Cacher::setAndGet('ticketsDueThisWeek', EasySeconds::minutes(5), function () {
+        return Cacher::remember('ticketsDueThisWeek', EasySeconds::minutes(5), function () {
             return $this->getNumIncidents([
                 'resolved' => 'false',
                 'target_date_end' => now()->endOfWeek()->format('Y-m-d'),
@@ -52,7 +57,7 @@ trait Counts
      */
     public function countBreachedTickets(): int
     {
-        return Cacher::setAndGet('ticketsBreached', EasySeconds::minutes(5), function () {
+        return Cacher::remember('ticketsBreached', EasySeconds::minutes(5), function () {
             return $this->getNumIncidents([
                 'resolved' => 'false',
                 'target_date_end' => now()->format('Y-m-d'),
@@ -66,7 +71,7 @@ trait Counts
      */
     public function countByProcessingStatusId(string $processingStatusId): int
     {
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'countByStatusId_'.$processingStatusId,
             EasySeconds::minutes(5),
             function () use ($processingStatusId) {
@@ -106,25 +111,19 @@ trait Counts
      */
     public function getNumIncidents(array $options = []): int
     {
-        try {
-            $response = $this->client->request('GET', 'api/incidents', [
-                'query' => $this->convertArrayMergeToQueryString([
-                    'start' => 0,
-                    'page_size' => 10000,
-                ], $options),
-                'on_stats' => function (TransferStats $stats) use (&$url) {
-                    $url = $stats->getEffectiveUri();
-                },
-            ]);
+        $response = self::query()->get('api/incidents', [
+            'page_size' => 100,
+            'start' => 0,
+            'query' => array_merge([
+                'start' => 0,
+                'page_size' => 10000
+            ], $options)
+        ])->throw();
 
-            if ($response->getStatusCode() === 204) {
-                return 0;
-            }
-        } catch (ConnectException $exception) {
-            return false;
+        if ($response->status()===204) {
+            return 0;
         }
-
-        return count(json_decode((string) $response->getBody(), true));
+        return $response->collect()->pluck('operatorGroup');
     }
 
     /**
@@ -161,7 +160,7 @@ trait Counts
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
-        $incidents = Cacher::setAndGet(
+        $incidents = Cacher::remember(
             'incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString,
             EasySeconds::minutes(5),
             function () use ($operatorId, $timeString) {
@@ -184,7 +183,7 @@ trait Counts
      */
     public function countOpenTicketsByOperator(string $operatorId): int
     {
-        $incidents = Cacher::setAndGet(
+        $incidents = Cacher::remember(
             'countOpenTicketsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
@@ -204,7 +203,7 @@ trait Counts
      */
     public function countActiveTicketsbyOperator(string $operatorId): int
     {
-        $incidents = Cacher::setAndGet(
+        $incidents = Cacher::remember(
             'countActiveIncidentsByOperatorID_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {

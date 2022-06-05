@@ -8,10 +8,16 @@ trait Persons
      * @param  string  $username
      * @return mixed
      */
-    public function getPersonByUsername(string $username)
+    public function getPersonByUsername(string $username): object
     {
-        return $this->request('GET', 'api/persons', [], [
+        $result = self::query()->get( 'api/persons', [
             'query' => '(networkLoginName=='.$username.')',
-        ]);
+        ])->throw()->collect();
+
+        if ($result->isEmpty()) {
+            throw new \Exception("Person Not Found");
+        }
+
+        return (object) $result->first();
     }
 }

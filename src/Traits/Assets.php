@@ -11,14 +11,18 @@ trait Assets
 {
     /**
      * @param  string  $name
-     * @return mixed
+     * @return string
      */
-    public function getAssetTemplateId(string $name)
+    public function getAssetTemplateId(string $name, bool $forgetCache = false): string
     {
-        return Cache::rememberForever('assetTemplateId_'.$name, function () use ($name) {
-            $return = $this->request('GET', 'api/assetmgmt/templates')['dataSet'];
+        $cacheKey = $this->setupCacheObject('assetTemplateId_'.$name, $forgetCache);
 
-            return collect($return)->where('text', '=', $name)->first()['id'];
+        return Cache::rememberForever($cacheKey, function () use ($name) {
+            $return = self::query()->get('api/assetmgmt/templates')->throw()->collect();
+
+            $result = collect($return['dataSet']);
+
+            return $result->where('text', '=', $name)->first()['id'];
         });
     }
 

@@ -7,6 +7,9 @@ use FredBradley\EasyTime\EasySeconds;
 
 trait Changes
 {
+    /**
+     * @return mixed
+     */
     public function allOpenChangeActivities()
     {
         return Cacher::setAndGet('operatorChangeActivites', EasySeconds::minutes(9), function () {
@@ -19,6 +22,9 @@ trait Changes
         });
     }
 
+    /**
+     * @return mixed
+     */
     public function unassignedWaitingChangeActivities()
     {
         $operatorId = $this->getOperatorGroupId('I.T. Services');
@@ -38,6 +44,11 @@ trait Changes
         );
     }
 
+    /**
+     * @param  string  $username
+     *
+     * @return mixed
+     */
     public function waitingChangeActivitiesByUsername(string $username)
     {
         $operatorId = Cacher::setAndGet(
@@ -51,6 +62,12 @@ trait Changes
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
     }
 
+    /**
+     * @param  string  $operatorId
+     * @param  string  $timeString
+     *
+     * @return mixed
+     */
     public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString)
     {
         return Cacher::setAndGet(
@@ -67,6 +84,11 @@ trait Changes
         );
     }
 
+    /**
+     * @param  string  $operatorId
+     *
+     * @return mixed
+     */
     public function waitingChangeActivitiesByOperatorId(string $operatorId)
     {
         return Cacher::setAndGet(

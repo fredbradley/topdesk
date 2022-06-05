@@ -12,7 +12,7 @@
     "homepage": "https://github.com/fredbradley/topdesk",
     "keywords": ["Laravel", "TOPDesk"],
     "require": {
-        "illuminate/support": "~5|~6|~7|~8",
+        "illuminate/support": "~8|~9",
         "innovaat/topdesk-api": "0.0.*",
         "fredbradley/cacher": "^2.0",
         "madebybob/php-number": "^1.4",

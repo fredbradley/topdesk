@@ -18,7 +18,7 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
             function () use ($operatorGroupId) {

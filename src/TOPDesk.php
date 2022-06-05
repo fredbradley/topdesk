@@ -2,6 +2,7 @@
 
 namespace FredBradley\TOPDesk;
 
+use FredBradley\Cacher\Cacher;
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
 use FredBradley\TOPDesk\Traits\Assets;
 use FredBradley\TOPDesk\Traits\Changes;
@@ -11,12 +12,23 @@ use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Innovaat\Topdesk\Api;
 
 class TOPDesk extends Api
 {
     use Incidents, OperatorStats, Changes, Counts, Persons, Assets;
+
+    /**
+     * @return \Illuminate\Http\Client\PendingRequest
+     */
+    public static function query(): PendingRequest
+    {
+        return Http::topdeskAuth();
+    }
 
     /**
      * TOPDesk constructor.
@@ -62,16 +74,23 @@ class TOPDesk extends Api
 
     /**
      * @param  string  $string
-     * @return mixed
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @return string
      */
-    public function getArchiveReasonId(string $string)
+    public function getArchiveReasonId(string $string): string
     {
-        $result = self::request('GET', 'api/archiving-reasons');
-        $results = collect($result);
+        return $this->getArchiveReasons()->where('name', $string)->first()[ 'id' ];
+    }
 
-        return $results->where('name', $string)->first()['id'];
+    /**
+     * @return \Illuminate\Support\Collection
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getArchiveReasons(): Collection
+    {
+        return self::query()
+                   ->get('api/archiving-reasons')
+                   ->throw()
+                   ->collect();
     }
 
     /**
@@ -87,6 +106,27 @@ class TOPDesk extends Api
     }
 
     /**
+     * Does some repetitive lifting for us. Calculates whether we should happily
+     * rely on the Cache or to clear that cache object and fetch brand new data.
+     *
+     * It then returns the cacheKey back so the framework can use it.
+     *
+     * @param  string  $cacheKey
+     * @param  bool  $forgetCache
+     *
+     * @return string
+     * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
+     */
+    public function setupCacheObject(string $cacheKey, bool $forgetCache): string
+    {
+        if ($forgetCache || config('topdesk.ignore_cache')) {
+            Cacher::forget($cacheKey);
+        }
+
+        return $cacheKey;
+    }
+
+    /**
      * Shorthand function to create requests with JSON body and query parameters.
      *
      * @param $method
@@ -96,6 +136,7 @@ class TOPDesk extends Api
      * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
+     * @deprecated We would rather use the Laravel HTTP Client Facade
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -106,6 +147,7 @@ class TOPDesk extends Api
                 'json' => $json,
                 'query' => $query,
             ], $options));
+           // return $response->getStatusCode();
 
             return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
         } catch (ConnectException $exception) {
