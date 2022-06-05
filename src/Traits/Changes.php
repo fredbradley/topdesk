@@ -46,7 +46,6 @@ trait Changes
 
     /**
      * @param  string  $username
-     *
      * @return mixed
      */
     public function waitingChangeActivitiesByUsername(string $username)
@@ -65,7 +64,6 @@ trait Changes
     /**
      * @param  string  $operatorId
      * @param  string  $timeString
-     *
      * @return mixed
      */
     public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString)
@@ -86,7 +84,6 @@ trait Changes
 
     /**
      * @param  string  $operatorId
-     *
      * @return mixed
      */
     public function waitingChangeActivitiesByOperatorId(string $operatorId)

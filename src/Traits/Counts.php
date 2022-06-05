@@ -4,10 +4,8 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
-use FredBradley\TOPDesk\Facades\TOPDesk;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\TransferStats;
-use Illuminate\Support\Facades\Http;
 
 trait Counts
 {
@@ -26,7 +24,7 @@ trait Counts
     /**
      * @return int
      */
-    public function countOpenTickets(string $operatorGroupName="Facilities", bool $forgetCache=false): int
+    public function countOpenTickets(string $operatorGroupName = 'Facilities', bool $forgetCache = false): int
     {
         $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
 
@@ -116,13 +114,14 @@ trait Counts
             'start' => 0,
             'query' => array_merge([
                 'start' => 0,
-                'page_size' => 10000
-            ], $options)
+                'page_size' => 10000,
+            ], $options),
         ])->throw();
 
-        if ($response->status()===204) {
+        if ($response->status() === 204) {
             return 0;
         }
+
         return $response->collect()->pluck('operatorGroup');
     }
 

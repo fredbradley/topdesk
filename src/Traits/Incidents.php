@@ -14,25 +14,23 @@ use Illuminate\Support\Collection;
  */
 trait Incidents
 {
-
     /**
      * @param  string  $operatorGroupId
      * @param  string  $processingStatus
      * @param  bool  $forgetCache
-     *
      * @return \Illuminate\Support\Collection
+     *
      * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
      */
-    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus='Open', bool $forgetCache = false): Collection
+    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = 'Open', bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('open_incidents_'.$operatorGroupId.$processingStatus, $forgetCache);
 
-        $processingStatusOperator = "==";
-        if ($processingStatus==='Open') {
+        $processingStatusOperator = '==';
+        if ($processingStatus === 'Open') {
             $processingStatusOperator = '!=';
-            $processingStatus="Closed";
+            $processingStatus = 'Closed';
         }
-
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupId, $processingStatus, $processingStatusOperator) {
             try {
@@ -45,9 +43,10 @@ trait Incidents
 
                 return collect($response)->map(function ($ticket) {
                     $ticket->creationDate = Carbon::parse($ticket->creationDate);
-                    if (!is_null($ticket->targetDate)) {
+                    if (! is_null($ticket->targetDate)) {
                         $ticket->targetDate = Carbon::parse($ticket->targetDate);
                     }
+
                     return $ticket;
                 });
             } catch (RequestException $exception) {
@@ -58,7 +57,6 @@ trait Incidents
 
     /**
      * @param  string  $username
-     *
      * @return \Illuminate\Support\Collection|\stdClass
      */
     public function getOperatorByUsername(string $username, $forgetCache = false): Collection|\stdClass
@@ -88,16 +86,16 @@ trait Incidents
 
     /**
      * @param  string  $name
-     *
      * @return string
      */
     public function getOperatorGroupId(string $name, bool $forgetCache = false): string
     {
         $cacheKey = $this->setupCacheObject('get_operator_group_name_'.$name, $forgetCache);
+
         return Cacher::remember($cacheKey, EasySeconds::months(1), function () use ($name) {
             $result = self::query()->get('api/operatorgroups/lookup', [
                 'name' => $name,
-                'archived' => false
+                'archived' => false,
             ])->throw();
 
             $collection = collect($result->object()->results)->first();
@@ -105,13 +103,12 @@ trait Incidents
                 return $collection->id;
             }
 
-            throw new \Exception("Could not find Operator Group: ".$name);
+            throw new \Exception('Could not find Operator Group: '.$name);
         });
     }
 
     /**
      * @param  string  $name
-     *
      * @return string
      */
     public function getProcessingStatusId(string $name, bool $forgetCache = false): string
@@ -119,13 +116,12 @@ trait Incidents
         $cacheKey = $this->setupCacheObject('getProcessingStatusId_'.$name, $forgetCache);
 
         return Cacher::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
-            return $this->getProcessingStatus($name, $forgetCache)[ 'id' ];
+            return $this->getProcessingStatus($name, $forgetCache)['id'];
         });
     }
 
     /**
      * @param  string  $name
-     *
      * @return array
      */
     public function getProcessingStatus(string $name, bool $forgetCache = false): array
@@ -135,7 +131,7 @@ trait Incidents
         return Cacher::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
             $statuses = $this->getAllProcessingStatuses($forgetCache);
 
-            return $statuses->where('name', $name)->first() ?? throw new \Exception("Status Not Found");
+            return $statuses->where('name', $name)->first() ?? throw new \Exception('Status Not Found');
         });
     }
 
@@ -145,6 +141,7 @@ trait Incidents
     public function getAllProcessingStatuses(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('statuses', $forgetCache);
+
         return Cacher::remember($cacheKey, EasySeconds::days(30), function () {
             return self::query()->get('api/incidents/statuses')->collect();
         });

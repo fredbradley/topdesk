@@ -78,11 +78,12 @@ class TOPDesk extends Api
      */
     public function getArchiveReasonId(string $string): string
     {
-        return $this->getArchiveReasons()->where('name', $string)->first()[ 'id' ];
+        return $this->getArchiveReasons()->where('name', $string)->first()['id'];
     }
 
     /**
      * @return \Illuminate\Support\Collection
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function getArchiveReasons(): Collection
@@ -113,8 +114,8 @@ class TOPDesk extends Api
      *
      * @param  string  $cacheKey
      * @param  bool  $forgetCache
-     *
      * @return string
+     *
      * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
      */
     public function setupCacheObject(string $cacheKey, bool $forgetCache): string
@@ -136,6 +137,7 @@ class TOPDesk extends Api
      * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
+     *
      * @deprecated We would rather use the Laravel HTTP Client Facade
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -147,7 +149,7 @@ class TOPDesk extends Api
                 'json' => $json,
                 'query' => $query,
             ], $options));
-           // return $response->getStatusCode();
+            // return $response->getStatusCode();
 
             return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
         } catch (ConnectException $exception) {

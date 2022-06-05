@@ -8,12 +8,8 @@ use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-/**
- *
- */
 abstract class BaseModel
 {
-
     /**
      * @var string
      */
@@ -39,7 +35,6 @@ abstract class BaseModel
     /**
      * @param  string  $id
      * @param  bool  $forgetCache
-     *
      * @return \FredBradley\TOPDesk\Models\BaseModel
      */
     public static function find(string $id, bool $forgetCache = false): BaseModel
@@ -55,10 +50,10 @@ abstract class BaseModel
         self::$model = get_called_class();
         self::$endpoint = match (self::$model) {
             Asset::class => 'assetmgmt/assets',
-            Operator::class => "operators",
-            OperatorGroup::class => "operatorgroups",
-            Person::class => "persons",
-            PersonGroup::class => "persongroups"
+            Operator::class => 'operators',
+            OperatorGroup::class => 'operatorgroups',
+            Person::class => 'persons',
+            PersonGroup::class => 'persongroups'
         };
     }
 
@@ -66,7 +61,6 @@ abstract class BaseModel
      * @param  string  $variableKey
      * @param  string  $variableValue
      * @param  bool  $forgetCache
-     *
      * @return \FredBradley\TOPDesk\Models\BaseModel
      */
     public static function findFirstByVariable(
@@ -81,7 +75,6 @@ abstract class BaseModel
      * @param  string  $variableKey
      * @param  string  $variableValue
      * @param  bool  $forgetCache
-     *
      * @return \Illuminate\Support\Collection
      */
     public static function whereVariableEquals(
@@ -93,6 +86,7 @@ abstract class BaseModel
 
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.$variableKey.$variableValue),
             forgetCache: $forgetCache);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
             $result = TOPDesk::query()->get('api/'.self::$endpoint.'/', [
                 'query' => $variableKey.'=='.$variableValue,
@@ -105,7 +99,6 @@ abstract class BaseModel
     /**
      * @param  string  $id
      * @param  bool  $forgetCache
-     *
      * @return \FredBradley\TOPDesk\Models\BaseModel
      */
     public static function findById(string $id, bool $forgetCache = false): BaseModel
@@ -113,13 +106,15 @@ abstract class BaseModel
         self::setEndpointAndModel();
 
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.'id'.$id), forgetCache: $forgetCache);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
             $endpoint = 'api/'.self::$endpoint.'/id/'.$id;
-            if (self::$model===Asset::class) {
+            if (self::$model === Asset::class) {
                 $endpoint = 'api/'.self::$endpoint.'/'.$id;
             }
 
             $result = TOPDesk::query()->get($endpoint)->throw()->object();
+
             return new self::$model($result);
         });
     }
