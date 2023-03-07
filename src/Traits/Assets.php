@@ -2,7 +2,8 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use Illuminate\Support\Facades\Cache;
+use FredBradley\Cacher\Cacher;
+use FredBradley\EasyTime\EasyMinutes;
 
 /**
  * Trait Assets.
@@ -11,35 +12,58 @@ trait Assets
 {
     /**
      * @param  string  $name
+     *
      * @return mixed
      */
-    public function getAssetTemplateId(string $name)
+    public function getAssetTemplateId(string $name): string
     {
-        return Cache::rememberForever('assetTemplateId_'.$name, function () use ($name) {
-            $return = $this->request('GET', 'api/assetmgmt/templates')['dataSet'];
+        return Cacher::remember('assetTemplateId_'.$name, EasyMinutes::weeks(1), function () use ($name) {
+            $return = $this->get('api/assetmgmt/templates')->dataSet;
 
-            return collect($return)->where('text', '=', $name)->first()['id'];
+            return collect($return)->where('text', '=', $name)->first()->id;
         });
+    }
+
+    public function getListOfAssets($query = []): object
+    {
+        return $this->get('api/assetmgmt/assets', $query);
+    }
+
+    /**
+     * @param  string  $assetID
+     * @param  string  $incidentID
+     *
+     * @return object
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function assignIncidentToAsset(string $assetID, string $incidentID): object
+    {
+        return TOPDesk::put('api/assetmgmt/assets/'.$assetID.'/assignments', [
+            'linkType' => 'incident',
+            'linkToId' => $incidentID,
+        ]);
     }
 
     /**
      * @param  string  $templateId
      * @param  string  $assetID
      * @param  array  $data
+     *
      * @return mixed
      */
     public function updateAssetByTemplateId(string $templateId, string $assetID, array $data)
     {
-        return $this->request('PATCH', 'api/assetmgmt/assets/templateId/'.$templateId.'/'.$assetID, $data);
+        return $this->patch('api/assetmgmt/assets/templateId/'.$templateId.'/'.$assetID, $data);
     }
 
     /**
      * @param  string  $templateId
      * @param  array  $data
+     *
      * @return mixed
      */
     public function createAssetByTemplateId(string $templateId, array $data)
     {
-        return $this->request('POST', 'api/assetmgmt/assets/templateId/'.$templateId, $data);
+        return $this->post('api/assetmgmt/assets/templateId/'.$templateId, $data);
     }
 }

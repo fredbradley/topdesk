@@ -12,20 +12,18 @@ trait OperatorStats
 {
     /**
      * @param  string  $name
-     * @return mixed
+     * @return array
      */
-    public function getOperatorsByOperatorGroup(string $name)
+    public function getOperatorsByOperatorGroup(string $name):array
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
             function () use ($operatorGroupId) {
-                return $this->request(
-                    'GET',
+                return $this->get(
                     'api/operators',
-                    [],
                     [
                         'page_size' => 100,
                         'query' => '(operatorGroup.id=='.$operatorGroupId.')',
@@ -46,8 +44,8 @@ trait OperatorStats
 
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
+            if (! in_array($operator->networkLoginName, $ignoreUsernames)) {
+                $results[$operator->networkLoginName] = $this->countOpenTicketsByOperator($operator->id);
             }
         }
 
@@ -92,17 +90,18 @@ trait OperatorStats
     }
 
     /**
-     * @param $operatorId
-     * @return \Closure|mixed
+     * @param string $operatorId
+     * @return array
      */
-    private function getResolvedIncidentsForOperator($operatorId)
+    public function getResolvedIncidentsForOperator(string $operatorId): array
     {
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'resolvedIncidentsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
-                $results = collect($this->getIncidents([
+                $results = collect($this->get('api/incidents', [
                     'operator' => $operatorId,
+                    'pageSize' => 10000,
                 ]));
 
                 return [
@@ -121,20 +120,21 @@ trait OperatorStats
      * Have to have 'open' as a key, because of the calculation at self::getResolvedTicketsForOperator
      * In the collection we are then also only showing change activities that are not skipped!
      *
-     * @param $operatorId
-     * @return \Closure|mixed
+     * @param string $operatorId
+     * @return array
      */
-    private function getResolvedChangeActivitiesForOperator($operatorId)
+    public function getResolvedChangeActivitiesForOperator(string $operatorId): array
     {
-        return Cacher::setAndGet(
+        Cacher::forget('resolvedChangeActivitesByOperatorAndTime_'.$operatorId);
+        return Cacher::remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
-            EasySeconds::minutes(1),
+            EasySeconds::minutes(5),
             function () use ($operatorId) {
-                $results = collect($this->request('GET', 'api/operatorChangeActivities', [], [
+                $results = collect($this->get('api/operatorChangeActivities', [
                     'open' => 'false',
                     'operator' => $operatorId,
-                    'pageSize' => 1000,
-                ])['results']);
+                    'pageSize' => 5000,
+                ])->results);
 
                 return [
                     'closed_day' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOfDay())->count(),
@@ -150,10 +150,10 @@ trait OperatorStats
     /**
      * Is the sum of Incidents and Change Activities...
      *
-     * @param $operatorId
+     * @param string $operatorId
      * @return array
      */
-    public function getResolvedTicketsForOperator($operatorId): array
+    public function getResolvedTicketsForOperator(string $operatorId): array
     {
         return $this->sumTwoArrays(
             $this->getResolvedIncidentsForOperator($operatorId),

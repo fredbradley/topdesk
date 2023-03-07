@@ -13,14 +13,66 @@ use Illuminate\Support\Facades\Log;
 trait Incidents
 {
     /**
-     * @param  string  $username
-     * @return array
+     * @param  string  $topdeskIncidentNumber
+     *
+     * @return object
+     * @throws \Illuminate\Http\Client\RequestException
      */
-    public function getOperatorByUsername(string $username): array
+    public function getIncidentbyNumber(string $topdeskIncidentNumber): object
     {
-        return Cacher::setAndGet('operator_'.$username, EasySeconds::months(1), function () use ($username) {
+        return $this->getIncident($topdeskIncidentNumber);
+    }
+
+    /**
+     * @param  string  $topdeskIncidentNumber
+     *
+     * @return object
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getIncident(string $topdeskIncidentNumber): object
+    {
+        return $this->get('api/incidents/number/'.$topdeskIncidentNumber);
+    }
+
+    public function createNewFrom(string $topdeskIncidentNumber)
+    {
+        $incident = $this->getIncident($topdeskIncidentNumber);
+        $unsets = ['id', 'number', 'asset', 'externalLinks', 'timeSpent', 'requests', 'caller'];
+        $incident[ 'callerLookup' ][ 'id' ] = $incident[ 'caller' ][ 'id' ];
+
+        foreach ($unsets as $unset) {
+            unset($incident[ $unset ]);
+        }
+        $incident[ 'category' ] =
+            [
+                'id' => $incident[ 'category' ][ 'id' ],
+            ];
+        unset($incident[ 'subcategory' ][ 'name' ]);
+
+        dd($incident);
+
+
+        $result = $this->createIncident($incident);
+        return $result;
+    }
+
+    /**
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function createIncident(array $options): object
+    {
+        return $this->post("api/incidents", $options);
+    }
+    /**
+     * @param  string  $username
+     *
+     * @return \stdClass
+     */
+    public function getOperatorByUsername(string $username): \stdClass
+    {
+        return Cacher::remember('operator_'.$username, EasySeconds::months(1), function () use ($username) {
             Log::debug('Searching for Operator: '.$username);
-            $result = $this->request('GET', 'api/operators', [], [
+            $result = $this->get('api/operators', [
                 'page_size' => 1,
                 'query' => '(networkLoginName=='.$username.')',
             ]);
@@ -30,7 +82,7 @@ trait Incidents
             }
 
             if (count($result) == 1) {
-                return $result[0];
+                return $result[ 0 ];
             }
 
             return $result;
@@ -39,43 +91,42 @@ trait Incidents
 
     /**
      * @param  string  $name
-     * @return mixed
+     *
+     * @return string
      */
     public function getOperatorGroupId(string $name): string
     {
-        return Cacher::setAndGet('get_operator_group_name_'.$name, EasySeconds::months(1), function () use ($name) {
-            $result = $this->request('GET', 'api/operatorgroups/lookup', [], ['name' => $name]);
+        return Cacher::remember('get_operator_group_name_'.$name, EasySeconds::months(1), function () use ($name) {
+            $result = $this->get('api/operatorgroups/lookup', ['name' => $name]);
 
-            return $result['results'][0]['id'];
+            return $result->results[ 0 ]->id;
         });
     }
 
     /**
      * @param  string  $name
+     *
      * @return string
      */
     public function getProcessingStatusId(string $name): string
     {
-        return Cacher::setAndGet('getProcessingStatusId_'.$name, EasySeconds::weeks(1), function () use ($name) {
-            return $this->getProcessingStatus($name)['id'];
+        return Cacher::remember('getProcessingStatusId_'.$name, EasySeconds::weeks(1), function () use ($name) {
+            return $this->getProcessingStatus($name)->id;
         });
     }
 
     /**
      * @param  string  $name
-     * @return array
+     *
+     * @throws \Illuminate\Support\ItemNotFoundException
+     * @return \stdClass
      */
-    public function getProcessingStatus(string $name): array
+    public function getProcessingStatus(string $name): \stdClass
     {
-        return Cacher::setAndGet('status_'.$name, EasySeconds::weeks(1), function () use ($name) {
-            $result = $this->request('GET', 'api/incidents/statuses');
-            foreach ($result as $key => $val) {
-                if ($val['name'] === $name) {
-                    return $result[$key];
-                }
-            }
+        return Cacher::remember('status_'.$name, EasySeconds::weeks(1), function () use ($name) {
+            $result = $this->get('api/incidents/statuses');
 
-            return [];
+            return collect($result)->where('name', $name)->firstOrFail();
         });
     }
 }
