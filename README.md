@@ -4,13 +4,10 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/fredbradley/topdesk.svg?style=flat-square)](https://packagist.org/packages/fredbradley/topdesk)
 ![StyleCI Status](https://github.styleci.io/repos/270444651/shield)
 
-Primarily a Service Provider for Laravel, but this package can be used on any PHP script. It connects with a TOPdesk instance with API permissions. It uses [Innovaat's](https://github.com/innovaat/topdesk-php) package as a basis.  
-
-## Early Adoptors Beware
-This is intended as a wrapper for the Laravel Ecosystem for a 3rd party product TOPdesk. As such in version 2 we shall be rapidly changing the responses to deliver a resource response more native to Laravel, rather than the flat Guzzle output.
+This is a TOPdesk API wrapper for Laravel. Using Laravel's HTTP Facade. Please check out the [Version 1 releases](https://github.com/fredbradley/topdesk/tree/v1.2.15) if you do not use Laravel, or the original package from [Innovaat](https://github.com/innovaat/topdesk-php).  
 
 ## Minimum Requirements
-- PHP 7.2 or higher
+- PHP 8.0 or higher
 
 ## Installation
 
@@ -21,11 +18,6 @@ $ composer require fredbradley/topdesk
 ```
 ## Set up
 Ensure you understand the TOPdesk API configuration and your TOPdesk environment is set up to use the API. More details can be found at [developers.topdesk.com](https://developers.topdesk.com/tutorial.html#:~:text=To%20create%20an%20Application%20password,in%20the%20Application%20passwords%20block.&text=In%20addition%20to%20a%20name,be%20set%20for%20the%20password.).
-
-### Without Laravel
-It is my intention to release this as a framework agnostic package. But at the moment, it is only availabel for Laravel. Please submit a pull request if you fancy helping out! 
-
-### With Laravel
 
 Add three variables to your `.env` file
 ``` txt
