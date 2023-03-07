@@ -24,12 +24,12 @@ trait Changes
 
     /**
      * @param  string  $operatorGroupName
-     *
      * @return array
      */
-    public function unassignedWaitingChangeActivities(string $operatorGroupName = "I.T. Services"): array
+    public function unassignedWaitingChangeActivities(string $operatorGroupName = 'I.T. Services'): array
     {
         $operatorId = $this->getOperatorGroupId($operatorGroupName);
+
         return Cacher::remember(
             'unassignedWaitingChangeActivities_'.$operatorId,
             EasySeconds::minutes(10),
@@ -47,7 +47,6 @@ trait Changes
 
     /**
      * @param  string  $username
-     *
      * @return array
      */
     public function waitingChangeActivitiesByUsername(string $username): array
@@ -60,10 +59,9 @@ trait Changes
     /**
      * @param  string  $operatorId
      * @param  string  $timeString
-     *
      * @return array
      */
-    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString='Week'): array
+    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): array
     {
         return Cacher::remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId.'_'.$timeString,
@@ -81,7 +79,6 @@ trait Changes
 
     /**
      * @param  string  $operatorId
-     *
      * @return array
      */
     public function waitingChangeActivitiesByOperatorId(string $operatorId): array

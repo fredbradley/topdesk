@@ -12,7 +12,6 @@ trait Assets
 {
     /**
      * @param  string  $name
-     *
      * @return mixed
      */
     public function getAssetTemplateId(string $name): string
@@ -32,8 +31,8 @@ trait Assets
     /**
      * @param  string  $assetID
      * @param  string  $incidentID
-     *
      * @return object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function assignIncidentToAsset(string $assetID, string $incidentID): object
@@ -48,7 +47,6 @@ trait Assets
      * @param  string  $templateId
      * @param  string  $assetID
      * @param  array  $data
-     *
      * @return mixed
      */
     public function updateAssetByTemplateId(string $templateId, string $assetID, array $data)
@@ -59,7 +57,6 @@ trait Assets
     /**
      * @param  string  $templateId
      * @param  array  $data
-     *
      * @return mixed
      */
     public function createAssetByTemplateId(string $templateId, array $data)

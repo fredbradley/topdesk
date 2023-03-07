@@ -14,8 +14,8 @@ trait Incidents
 {
     /**
      * @param  string  $topdeskIncidentNumber
-     *
      * @return object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function getIncidentbyNumber(string $topdeskIncidentNumber): object
@@ -25,8 +25,8 @@ trait Incidents
 
     /**
      * @param  string  $topdeskIncidentNumber
-     *
      * @return object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function getIncident(string $topdeskIncidentNumber): object
@@ -38,21 +38,21 @@ trait Incidents
     {
         $incident = $this->getIncident($topdeskIncidentNumber);
         $unsets = ['id', 'number', 'asset', 'externalLinks', 'timeSpent', 'requests', 'caller'];
-        $incident[ 'callerLookup' ][ 'id' ] = $incident[ 'caller' ][ 'id' ];
+        $incident['callerLookup']['id'] = $incident['caller']['id'];
 
         foreach ($unsets as $unset) {
-            unset($incident[ $unset ]);
+            unset($incident[$unset]);
         }
-        $incident[ 'category' ] =
+        $incident['category'] =
             [
-                'id' => $incident[ 'category' ][ 'id' ],
+                'id' => $incident['category']['id'],
             ];
-        unset($incident[ 'subcategory' ][ 'name' ]);
+        unset($incident['subcategory']['name']);
 
         dd($incident);
 
-
         $result = $this->createIncident($incident);
+
         return $result;
     }
 
@@ -61,11 +61,11 @@ trait Incidents
      */
     public function createIncident(array $options): object
     {
-        return $this->post("api/incidents", $options);
+        return $this->post('api/incidents', $options);
     }
+
     /**
      * @param  string  $username
-     *
      * @return \stdClass
      */
     public function getOperatorByUsername(string $username): \stdClass
@@ -82,7 +82,7 @@ trait Incidents
             }
 
             if (count($result) == 1) {
-                return $result[ 0 ];
+                return $result[0];
             }
 
             return $result;
@@ -91,7 +91,6 @@ trait Incidents
 
     /**
      * @param  string  $name
-     *
      * @return string
      */
     public function getOperatorGroupId(string $name): string
@@ -99,13 +98,12 @@ trait Incidents
         return Cacher::remember('get_operator_group_name_'.$name, EasySeconds::months(1), function () use ($name) {
             $result = $this->get('api/operatorgroups/lookup', ['name' => $name]);
 
-            return $result->results[ 0 ]->id;
+            return $result->results[0]->id;
         });
     }
 
     /**
      * @param  string  $name
-     *
      * @return string
      */
     public function getProcessingStatusId(string $name): string
@@ -117,9 +115,9 @@ trait Incidents
 
     /**
      * @param  string  $name
+     * @return \stdClass
      *
      * @throws \Illuminate\Support\ItemNotFoundException
-     * @return \stdClass
      */
     public function getProcessingStatus(string $name): \stdClass
     {

@@ -14,7 +14,7 @@ trait OperatorStats
      * @param  string  $name
      * @return array
      */
-    public function getOperatorsByOperatorGroup(string $name):array
+    public function getOperatorsByOperatorGroup(string $name): array
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
@@ -90,7 +90,7 @@ trait OperatorStats
     }
 
     /**
-     * @param string $operatorId
+     * @param  string  $operatorId
      * @return array
      */
     public function getResolvedIncidentsForOperator(string $operatorId): array
@@ -120,12 +120,13 @@ trait OperatorStats
      * Have to have 'open' as a key, because of the calculation at self::getResolvedTicketsForOperator
      * In the collection we are then also only showing change activities that are not skipped!
      *
-     * @param string $operatorId
+     * @param  string  $operatorId
      * @return array
      */
     public function getResolvedChangeActivitiesForOperator(string $operatorId): array
     {
         Cacher::forget('resolvedChangeActivitesByOperatorAndTime_'.$operatorId);
+
         return Cacher::remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
             EasySeconds::minutes(5),
@@ -150,7 +151,7 @@ trait OperatorStats
     /**
      * Is the sum of Incidents and Change Activities...
      *
-     * @param string $operatorId
+     * @param  string  $operatorId
      * @return array
      */
     public function getResolvedTicketsForOperator(string $operatorId): array

@@ -6,7 +6,6 @@ use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\TransferStats;
-use Illuminate\Support\Collection;
 
 trait Counts
 {
@@ -25,7 +24,7 @@ trait Counts
     /**
      * @return int
      */
-    public function countOpenTickets(string $operatorGroupName = "I.T. Services"): int
+    public function countOpenTickets(string $operatorGroupName = 'I.T. Services'): int
     {
         return Cacher::remember('openTickets', EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
@@ -64,7 +63,6 @@ trait Counts
 
     /**
      * @param  string  $processingStatusId
-     *
      * @return int
      */
     public function countByProcessingStatusId(string $processingStatusId): int
@@ -83,7 +81,6 @@ trait Counts
     /**
      * @param  array  $firstArray
      * @param  array  $mergeFrom
-     *
      * @return string
      */
     private function convertArrayMergeToQueryString(array $firstArray, array $mergeFrom): string
@@ -106,7 +103,6 @@ trait Counts
 
     /**
      * @param  array  $options
-     *
      * @return int
      */
     public function getNumIncidents(array $options = []): int
@@ -116,7 +112,6 @@ trait Counts
 
     /**
      * @param  array  $options
-     *
      * @return array
      */
     public function getIncidents(array $options = []): array
@@ -145,7 +140,6 @@ trait Counts
     /**
      * @param  string  $operatorId
      * @param  string  $timeString
-     *
      * @return int
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
@@ -169,7 +163,6 @@ trait Counts
 
     /**
      * @param  string  $operatorId
-     *
      * @return mixed
      */
     public function countOpenTicketsByOperator(string $operatorId): int
@@ -190,7 +183,6 @@ trait Counts
 
     /**
      * @param  string  $operatorId
-     *
      * @return int
      */
     public function countActiveTicketsbyOperator(string $operatorId): int
@@ -216,7 +208,6 @@ trait Counts
 
     /**
      * @param  string  $operatorId
-     *
      * @return int
      */
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
@@ -232,7 +223,6 @@ trait Counts
 
     /**
      * @param  string  $statusName
-     *
      * @return int
      */
     public function countTicketsByStatus(string $statusName): int

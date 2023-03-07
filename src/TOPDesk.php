@@ -10,13 +10,9 @@ use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Innovaat\Topdesk\Api;
 
 class TOPDesk
 {
@@ -66,8 +62,8 @@ class TOPDesk
     /**
      * @param  string  $uri
      * @param  array  $data
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function delete(string $uri, array $data): array|object
@@ -78,8 +74,8 @@ class TOPDesk
     /**
      * @param  string  $uri
      * @param  array  $data
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function patch(string $uri, array $data): array|object
@@ -90,8 +86,8 @@ class TOPDesk
     /**
      * @param  string  $uri
      * @param  array  $data
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function put(string $uri, array $data): array|object
@@ -102,8 +98,8 @@ class TOPDesk
     /**
      * @param  string  $uri
      * @param  array  $data
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function post(string $uri, array $data): array|object
@@ -114,8 +110,8 @@ class TOPDesk
     /**
      * @param  string  $uri
      * @param  array  $query
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function get(string $uri, array $query = []): array|object
@@ -125,8 +121,8 @@ class TOPDesk
 
     /**
      * @param  \Illuminate\Http\Client\Response  $response
-     *
      * @return array|object
+     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     private function process(Response $response): array|object
@@ -147,9 +143,7 @@ class TOPDesk
 
     /**
      * @param  string  $string
-     *
      * @return mixed
-     *
      */
     public function getArchiveReasonId(string $string)
     {
@@ -180,11 +174,11 @@ class TOPDesk
      * @param  array  $query
      * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
-     *
      * @return mixed|ResponseInterface
-     * @throws \Exception
-     * @deprecated Use specific HTTP OPTION method instead
      *
+     * @throws \Exception
+     *
+     * @deprecated Use specific HTTP OPTION method instead
      */
     public function request(
         $method,
@@ -194,8 +188,6 @@ class TOPDesk
         array $options = [],
         $decode = true
     ) {
-        throw new \Exception("Method Deprecated. Use specific HTTP OPTION method instead.");
+        throw new \Exception('Method Deprecated. Use specific HTTP OPTION method instead.');
     }
-
-
 }
