@@ -42,6 +42,16 @@ trait Assets
             'linkToId' => $incidentID,
         ]);
     }
+    public function linkIncidentToAsset(string $assetID, string $incidentID): object
+    {
+        return TOPDesk::post('api/assetmgmt/assets/linkedTask', [
+            'assetIds' => [
+                $assetID,
+            ],
+            'taskId' => $incidentID,
+            'taskType' => 'incident',
+        ]);
+    }
 
     /**
      * @param  string  $templateId

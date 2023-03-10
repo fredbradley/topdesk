@@ -6,6 +6,7 @@ use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Trait Incidents.
@@ -15,6 +16,7 @@ trait Incidents
     /**
      * @param  string  $topdeskIncidentNumber
      * @return object
+     * @deprecated use getIncident() instead
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
@@ -24,13 +26,16 @@ trait Incidents
     }
 
     /**
-     * @param  string  $topdeskIncidentNumber
+     * @param  string  $topdeskIncidentNumber either the UNID or Ticket Number
      * @return object
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function getIncident(string $topdeskIncidentNumber): object
     {
+        if (Str::isUuid($topdeskIncidentNumber)) {
+            return $this->get('api/incidents/id/'.$topdeskIncidentNumber);
+        }
         return $this->get('api/incidents/number/'.$topdeskIncidentNumber);
     }
 
