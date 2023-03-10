@@ -37,7 +37,7 @@ trait Assets
      */
     public function assignIncidentToAsset(string $assetID, string $incidentID): object
     {
-        return TOPDesk::put('api/assetmgmt/assets/'.$assetID.'/assignments', [
+        return $this->put('api/assetmgmt/assets/'.$assetID.'/assignments', [
             'linkType' => 'incident',
             'linkToId' => $incidentID,
         ]);
@@ -45,7 +45,7 @@ trait Assets
 
     public function linkIncidentToAsset(string $assetID, string $incidentID): object
     {
-        return TOPDesk::post('api/assetmgmt/assets/linkedTask', [
+        return $this->post('api/assetmgmt/assets/linkedTask', [
             'assetIds' => [
                 $assetID,
             ],

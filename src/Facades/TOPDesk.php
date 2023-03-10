@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static request(string $string, string $string1, string[] $array): object
  * @method static patch(string $string, array $array): object
  * @method static getProcessingStatusid(string $string): object
+ * @method static createIncident(array $params): object
+ * @method static getPersonByUsername(mixed $username)
  */
 class TOPDesk extends Facade
 {
