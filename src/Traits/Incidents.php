@@ -16,6 +16,7 @@ trait Incidents
     /**
      * @param  string  $topdeskIncidentNumber
      * @return object
+     *
      * @deprecated use getIncident() instead
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -26,7 +27,7 @@ trait Incidents
     }
 
     /**
-     * @param  string  $topdeskIncidentNumber either the UNID or Ticket Number
+     * @param  string  $topdeskIncidentNumber  either the UNID or Ticket Number
      * @return object
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -36,6 +37,7 @@ trait Incidents
         if (Str::isUuid($topdeskIncidentNumber)) {
             return $this->get('api/incidents/id/'.$topdeskIncidentNumber);
         }
+
         return $this->get('api/incidents/number/'.$topdeskIncidentNumber);
     }
 
