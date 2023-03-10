@@ -6,7 +6,7 @@ trait Persons
 {
     /**
      * @param  string  $username
-     * @return mixed
+     * @return array
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
@@ -23,10 +23,18 @@ trait Persons
      * Will be refactored to retrieve a different value in a future release.
      *
      * @param  string  $username
-     * @return mixed
+     * @return object
      */
-    public function getPersonByUsername(string $username): array
+    public function getPersonByUsername(string $username): object
     {
         return $this->getPersonsByUsername($username);
+    }
+
+    /**
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getPersonById(string $id): object
+    {
+        return $this->get('api/persons/id/'.$id);
     }
 }
