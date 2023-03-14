@@ -27,7 +27,7 @@ trait Persons
      */
     public function getPersonByUsername(string $username): object
     {
-        return $this->getPersonsByUsername($username);
+        return collect($this->getPersonsByUsername($username))->first();
     }
 
     /**
