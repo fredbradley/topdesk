@@ -130,6 +130,7 @@ class TOPDesk
         if ($response->status() === \Illuminate\Http\Response::HTTP_NO_CONTENT) {
             return [];
         }
+
         return $response->throw()->object();
     }
 
