@@ -66,7 +66,7 @@ class TOPDesk
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function delete(string $uri, array $data): array|object
+    public function delete(string $uri, array $data = []): array|object
     {
         return $this->process($this->setupResponse()->delete($uri, $data));
     }
@@ -78,7 +78,7 @@ class TOPDesk
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function patch(string $uri, array $data): array|object
+    public function patch(string $uri, array $data = []): array|object
     {
         return $this->process($this->setupResponse()->patch($uri, $data));
     }
@@ -90,7 +90,7 @@ class TOPDesk
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function put(string $uri, array $data): array|object
+    public function put(string $uri, array $data = []): array|object
     {
         return $this->process($this->setupResponse()->put($uri, $data));
     }
@@ -102,7 +102,7 @@ class TOPDesk
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function post(string $uri, array $data): array|object
+    public function post(string $uri, array $data = []): array|object
     {
         return $this->process($this->setupResponse()->post($uri, $data));
     }
