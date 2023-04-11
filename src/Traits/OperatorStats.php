@@ -81,8 +81,7 @@ trait OperatorStats
         $results = [];
 
         foreach ($operators as $operator) {
-            if (! in_array(strtolower($operator->networkLoginName), array_map('strtolower',$ignoreUsernames))) {
-
+            if (! in_array(strtolower($operator->networkLoginName), array_map('strtolower', $ignoreUsernames))) {
                 $results[$operator->networkLoginName] = $this->getResolvedTicketsForOperator($operator->id);
             }
         }
