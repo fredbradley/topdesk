@@ -82,7 +82,7 @@ trait OperatorStats
 
         foreach ($operators as $operator) {
             if (! in_array(strtolower($operator->networkLoginName), array_map('strtolower', $ignoreUsernames))) {
-                $results[$operator->networkLoginName] = $this->getResolvedTicketsForOperator($operator->id);
+                $results[$operator->networkLoginName] = $this->getResolvedIncidentsForOperator($operator->id); // changed method to getResolvedIncidentsForOperator to as not to include change requests, which we know longer have access to
             }
         }
 
