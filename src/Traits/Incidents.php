@@ -109,14 +109,15 @@ trait Incidents
         });
     }
 
-    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, array $fields=[]): array
+    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, array $fields = []): array
     {
-        $customFieldsList = empty($fields) ? null : implode(',',$fields);
+        $customFieldsList = empty($fields) ? null : implode(',', $fields);
         $result = $this->get('api/incidents', [
             'pageSize' => 10,
-            'query' => "closed==false,operatorGroup.id==".$operatorGroupId,
-            'fields' => $customFieldsList
+            'query' => 'closed==false,operatorGroup.id=='.$operatorGroupId,
+            'fields' => $customFieldsList,
         ]);
+
         return $result;
     }
 
