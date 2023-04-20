@@ -7,6 +7,7 @@ use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use function Symfony\Component\VarDumper\Dumper\esc;
 
 /**
  * Trait Incidents.
@@ -109,12 +110,21 @@ trait Incidents
         });
     }
 
-    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, array $fields=[]): array
+    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus=null, array $fields=[]): array
     {
+        $queries = [
+            'operatorGroup.id=='.$operatorGroupId
+        ];
+        if (is_null($processingStatus)) {
+            $queries[] = 'closed==false';
+        } else {
+            $queries[] = 'processingStatus.name=="'.($processingStatus).'"';
+        }
+
         $customFieldsList = empty($fields) ? null : implode(',',$fields);
         $result = $this->get('api/incidents', [
             'pageSize' => 10,
-            'query' => "closed==false,operatorGroup.id==".$operatorGroupId,
+            'query' => implode(";", $queries),
             'fields' => $customFieldsList
         ]);
         return $result;
