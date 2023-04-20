@@ -127,6 +127,7 @@ trait Incidents
             'query' => implode(";", $queries),
             'fields' => $customFieldsList
         ]);
+
         return $result;
     }
 
