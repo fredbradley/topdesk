@@ -64,7 +64,7 @@ trait Counts
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
-        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function ($operatorGroupName) {
+        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
                 'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                 'resolved' => 'false',
