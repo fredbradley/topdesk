@@ -143,9 +143,19 @@ trait Counts
     /**
      * @param  string  $operatorId
      * @param  string  $timeString
+     * @deprecated Use 'countClosedTicketsByTime' instead
      * @return int
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
+    {
+        return $this->countClosedTicketsByTime($operatorId, $timeString);
+    }
+    /**
+     * @param  string  $operatorId
+     * @param  string  $timeString
+     * @return int
+     */
+    public function countClosedTicketsByTime(string $operatorId, string $timeString = 'week'): int
     {
         return Cacher::remember(
             'incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString,
