@@ -107,8 +107,9 @@ trait Counts
         $response = $this->get('api/incidents', array_merge([
             'pageSize' => 10000, // the maximum
             'fields' => 'id', // limit it right down if we only care about numbers
-            'query' => $fiql
+            'query' => $fiql,
         ], $options));
+
         return collect($response)->count();
     }
 
@@ -153,7 +154,6 @@ trait Counts
                 return $this->getNumIncidents('operator.id=='.$operatorId.';closed==true;closedDate=gt='.now()->startOf($timeString)->toIso8601String());
             }
         );
-
     }
 
     /**
@@ -186,7 +186,6 @@ trait Counts
                 return $this->getNumIncidents('operator.id=='.$operatorId.';closed==false;processingStatus.id=in=('.$this->getProcessingStatusId('Logged').','.$this->getProcessingStatusId('In progress').','.$this->getProcessingStatusId('Updated by user').')');
             }
         );
-
     }
 
     /**
