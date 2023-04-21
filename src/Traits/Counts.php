@@ -16,6 +16,7 @@ trait Counts
     public function countTicketsLoggedtoday(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(15), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
                 'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
@@ -30,6 +31,7 @@ trait Counts
     public function countOpenTickets(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
                 'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
@@ -45,6 +47,7 @@ trait Counts
     public function countTicketsDueThisWeek(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
                 'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
@@ -60,6 +63,7 @@ trait Counts
     public function countBreachedTickets(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function ($operatorGroupName) {
             return $this->getNumIncidents([
                 'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
