@@ -30,7 +30,7 @@ trait Counts
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
-            return $this->getNumIncidents('closed===false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
+            return $this->getNumIncidents('closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
         });
     }
 
