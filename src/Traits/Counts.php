@@ -6,16 +6,19 @@ use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\TransferStats;
+use Illuminate\Support\Str;
 
 trait Counts
 {
     /**
      * @return int
      */
-    public function countTicketsLoggedtoday(): int
+    public function countTicketsLoggedtoday(string $operatorGroupName = 'I.T. Services'): int
     {
-        return Cacher::remember('ticketsLoggedToday', EasySeconds::minutes(15), function () {
+        $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+        return Cacher::remember($cacheKey, EasySeconds::minutes(15), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
+                'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                 'creation_date_start' => now()->format('Y-m-d'),
             ]);
         });
@@ -26,9 +29,10 @@ trait Counts
      */
     public function countOpenTickets(string $operatorGroupName = 'I.T. Services'): int
     {
-        return Cacher::remember('openTickets', EasySeconds::minutes(5), function () use ($operatorGroupName) {
+        $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
-                'operator' => self::getOperatorGroupId($operatorGroupName),
+                'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                 'fields' => 'id',
                 'resolved' => 'false',
             ]);
@@ -38,10 +42,12 @@ trait Counts
     /**
      * @return int
      */
-    public function countTicketsDueThisWeek(): int
+    public function countTicketsDueThisWeek(string $operatorGroupName = 'I.T. Services'): int
     {
-        return Cacher::remember('ticketsDueThisWeek', EasySeconds::minutes(5), function () {
+        $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents([
+                'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                 'resolved' => 'false',
                 'target_date_end' => now()->endOfWeek()->format('Y-m-d'),
             ]);
@@ -51,10 +57,12 @@ trait Counts
     /**
      * @return int
      */
-    public function countBreachedTickets(): int
+    public function countBreachedTickets(string $operatorGroupName = 'I.T. Services'): int
     {
-        return Cacher::remember('ticketsBreached', EasySeconds::minutes(5), function () {
+        $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function ($operatorGroupName) {
             return $this->getNumIncidents([
+                'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                 'resolved' => 'false',
                 'target_date_end' => now()->format('Y-m-d'),
             ]);
@@ -65,13 +73,16 @@ trait Counts
      * @param  string  $processingStatusId
      * @return int
      */
-    public function countByProcessingStatusId(string $processingStatusId): int
+    public function countByProcessingStatusId(string $processingStatusId, string $operatorGroupName = 'I.T. Services'): int
     {
+        $cacheKey = Str::slug(__METHOD__.$processingStatusId.$operatorGroupName);
+
         return Cacher::remember(
-            'countByStatusId_'.$processingStatusId,
+            $cacheKey,
             EasySeconds::minutes(5),
-            function () use ($processingStatusId) {
+            function () use ($processingStatusId, $operatorGroupName) {
                 return $this->getNumIncidents([
+                    'operatorGroup.id' => $this->getOperatorGroupId($operatorGroupName),
                     'processing_status' => $processingStatusId,
                 ]);
             }
