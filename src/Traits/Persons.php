@@ -2,6 +2,8 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
+use Illuminate\Support\Collection;
+
 trait Persons
 {
     /**
@@ -10,11 +12,11 @@ trait Persons
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function getPersonsByUsername(string $username): array
+    public function getPersonsByUsername(string $username): ?object
     {
-        return $this->get('api/persons', [
+        return collect($this->get('api/persons', [
             'query' => '(networkLoginName=='.$username.')',
-        ]);
+        ]))->first();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasyMinutes;
+use Illuminate\Http\Client\RequestException;
 
 /**
  * Trait Assets.
@@ -55,12 +56,13 @@ trait Assets
     }
 
     /**
-     * @param  string  $templateId
-     * @param  string  $assetID
-     * @param  array  $data
-     * @return mixed
+     * @param string $templateId
+     * @param string $assetID
+     * @param array $data
+     * @return array|object
+     * @throws RequestException
      */
-    public function updateAssetByTemplateId(string $templateId, string $assetID, array $data)
+    public function updateAssetByTemplateId(string $templateId, string $assetID, array $data):array|object
     {
         return $this->patch('api/assetmgmt/assets/templateId/'.$templateId.'/'.$assetID, $data);
     }
@@ -68,7 +70,7 @@ trait Assets
     /**
      * @param  string  $templateId
      * @param  array  $data
-     * @return mixed
+     * @return array|object
      */
     public function createAssetByTemplateId(string $templateId, array $data)
     {

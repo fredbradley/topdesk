@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static getProcessingStatusid(string $string): object
  * @method static createIncident(array $params): object
  * @method static getPersonByUsername(mixed $username)
+ * @method static array|object updateAssetByTemplateId(string $templateId, string $assetID, array $data)
+ * @method static array|object createAssetByTemplateId(string $templateId, array $data)
  */
 class TOPDesk extends Facade
 {
