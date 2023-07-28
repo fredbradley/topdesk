@@ -73,13 +73,16 @@ trait OperatorStats
     /**
      * @param  string  $name
      * @param  array  $ignoreUsername
+     *
      * @deprecated Use closedTicketCountsForOperatorGroup
+     *
      * @return array
      */
     public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsername = []): array
     {
         return $this->closedTicketCountsForOperatorGroup($name, $ignoreUsername);
     }
+
     /**
      * @param  string  $name
      * @param  array  $ignoreUsernames
@@ -101,13 +104,16 @@ trait OperatorStats
 
     /**
      * @param  string  $operatorId
+     *
      * @deprecated Use getClosedIncidentsForOperator
+     *
      * @return array
      */
     public function getResolvedIncidentsForOperator(string $operatorId): array
     {
         return $this->getClosedIncidentsForOperator($operatorId);
     }
+
     /**
      * @param  string  $operatorId
      * @return array
@@ -134,13 +140,13 @@ trait OperatorStats
         );
     }
 
-
-
     /**
      * Is the sum of Incidents and Change Activities...
      *
      * @param  string  $operatorId
+     *
      * @deprecated
+     *
      * @return array
      */
     public function getResolvedTicketsForOperator(string $operatorId): array
