@@ -2,8 +2,6 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use Illuminate\Support\Collection;
-
 trait Persons
 {
     /**
