@@ -172,7 +172,7 @@ class TOPDesk
     /**
      * Shorthand function to create requests with JSON body and query parameters.
      *
-     * @param $method
+     * @param  $method
      * @param  string  $uri
      * @param  array  $json
      * @param  array  $query
