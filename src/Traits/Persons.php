@@ -2,12 +2,15 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
+use Illuminate\Http\Client\RequestException;
+
 trait Persons
 {
     /**
-     * @return array
+     * @param string $username
+     * @return object
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function getPersonByUsername(string $username): object
     {
@@ -21,19 +24,8 @@ trait Persons
 
         return (object) $result->first();
     }
-
     /**
-     * @deprecated Use getPersonsByUsername instead.
-     *
-     * Will be refactored to retrieve a different value in a future release.
-     */
-    public function getPersonByUsername(string $username): object
-    {
-        return $this->getPersonsByUsername($username);
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function getPersonById(string $id): object
     {
