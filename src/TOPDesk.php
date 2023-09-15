@@ -20,13 +20,10 @@ use Illuminate\Support\Facades\Http;
 
 class TOPDesk
 {
-    use Incidents, OperatorStats, Changes, Counts, Persons, Assets;
+    use Assets, Changes, Counts, Incidents, OperatorStats, Persons;
 
     private $client;
 
-    /**
-     * @return \Illuminate\Http\Client\PendingRequest
-     */
     public static function query(): PendingRequest
     {
         return Http::topdeskAuth();
@@ -72,10 +69,6 @@ class TOPDesk
     }
 
     /**
-     * @param  string  $uri
-     * @param  array  $data
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function delete(string $uri, array $data = []): array|object
@@ -84,10 +77,6 @@ class TOPDesk
     }
 
     /**
-     * @param  string  $uri
-     * @param  array  $data
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function patch(string $uri, array $data = []): array|object
@@ -96,10 +85,6 @@ class TOPDesk
     }
 
     /**
-     * @param  string  $uri
-     * @param  array  $data
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function put(string $uri, array $data = []): array|object
@@ -108,10 +93,6 @@ class TOPDesk
     }
 
     /**
-     * @param  string  $uri
-     * @param  array  $data
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function post(string $uri, array $data = []): array|object
@@ -120,10 +101,6 @@ class TOPDesk
     }
 
     /**
-     * @param  string  $uri
-     * @param  array  $query
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function get(string $uri, array $query = []): array|object
@@ -132,9 +109,6 @@ class TOPDesk
     }
 
     /**
-     * @param  \Illuminate\Http\Client\Response  $response
-     * @return array|object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     private function process(Response $response): array|object
@@ -146,9 +120,6 @@ class TOPDesk
         return $response->throw()->object();
     }
 
-    /**
-     * @return \Illuminate\Http\Client\PendingRequest
-     */
     private function setupResponse(): PendingRequest
     {
         return Http::acceptJson()->withBasicAuth(
@@ -157,34 +128,26 @@ class TOPDesk
         )->baseUrl($this->endpointWithTrailingSlash());
     }
 
-    /**
-     * @param  string  $string
-     * @return string
-     */
     public function getArchiveReasonId(string $string): string
     {
         return $this->getArchiveReasons()->where('name', $string)->first()['id'];
     }
 
     /**
-     * @return \Illuminate\Support\Collection
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function getArchiveReasons(): Collection
     {
         return self::query()
-                   ->get('api/archiving-reasons')
-                   ->throw()
-                   ->collect();
+            ->get('api/archiving-reasons')
+            ->throw()
+            ->collect();
     }
 
     /**
      * Let's hold the end users hands,
      * and if they fall at the first hurdle,
      * we won't say a thing!
-     *
-     * @return string
      */
     private function endpointWithTrailingSlash(): string
     {
@@ -197,9 +160,6 @@ class TOPDesk
      *
      * It then returns the cacheKey back so the framework can use it.
      *
-     * @param  string  $cacheKey
-     * @param  bool  $forgetCache
-     * @return string
      *
      * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
      */
@@ -215,11 +175,8 @@ class TOPDesk
     /**
      * Shorthand function to create requests with JSON body and query parameters.
      *
-     * @param  $method
      * @param  string  $uri
      * @param  array  $json
-     * @param  array  $query
-     * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
      *

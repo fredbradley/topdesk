@@ -9,10 +9,6 @@ use Illuminate\Http\Client\RequestException;
  */
 trait Assets
 {
-    /**
-     * @param  string  $name
-     * @return string
-     */
     public function getAssetTemplateId(string $name, bool $forgetCache = false): string
     {
         $cacheKey = $this->setupCacheObject('assetTemplateId_'.$name, $forgetCache);
@@ -32,10 +28,6 @@ trait Assets
     }
 
     /**
-     * @param  string  $assetID
-     * @param  string  $incidentID
-     * @return object
-     *
      * @throws \Illuminate\Http\Client\RequestException
      */
     public function assignIncidentToAsset(string $assetID, string $incidentID): object
@@ -58,11 +50,6 @@ trait Assets
     }
 
     /**
-     * @param  string  $templateId
-     * @param  string  $assetID
-     * @param  array  $data
-     * @return array|object
-     *
      * @throws RequestException
      */
     public function updateAssetByTemplateId(string $templateId, string $assetID, array $data): array|object
@@ -71,8 +58,6 @@ trait Assets
     }
 
     /**
-     * @param  string  $templateId
-     * @param  array  $data
      * @return array|object
      */
     public function createAssetByTemplateId(string $templateId, array $data)

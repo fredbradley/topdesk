@@ -10,18 +10,10 @@ use Illuminate\Support\Str;
 
 abstract class BaseModel
 {
-    /**
-     * @var string
-     */
     private static string $endpoint;
-    /**
-     * @var string
-     */
+
     private static string $model;
 
-    /**
-     * @param  $object
-     */
     public function __construct(array|object $object)
     {
         if (is_array($object)) {
@@ -32,19 +24,11 @@ abstract class BaseModel
         }
     }
 
-    /**
-     * @param  string  $id
-     * @param  bool  $forgetCache
-     * @return \FredBradley\TOPDesk\Models\BaseModel
-     */
     public static function find(string $id, bool $forgetCache = false): BaseModel
     {
         return self::findById($id, $forgetCache);
     }
 
-    /**
-     * @return void
-     */
     private static function setEndpointAndModel(): void
     {
         self::$model = get_called_class();
@@ -57,12 +41,6 @@ abstract class BaseModel
         };
     }
 
-    /**
-     * @param  string  $variableKey
-     * @param  string  $variableValue
-     * @param  bool  $forgetCache
-     * @return \FredBradley\TOPDesk\Models\BaseModel
-     */
     public static function findFirstByVariable(
         string $variableKey,
         string $variableValue,
@@ -71,12 +49,6 @@ abstract class BaseModel
         return self::whereVariableEquals($variableKey, $variableValue, $forgetCache)->first();
     }
 
-    /**
-     * @param  string  $variableKey
-     * @param  string  $variableValue
-     * @param  bool  $forgetCache
-     * @return \Illuminate\Support\Collection
-     */
     public static function whereVariableEquals(
         string $variableKey,
         string $variableValue,
@@ -96,11 +68,6 @@ abstract class BaseModel
         });
     }
 
-    /**
-     * @param  string  $id
-     * @param  bool  $forgetCache
-     * @return \FredBradley\TOPDesk\Models\BaseModel
-     */
     public static function findById(string $id, bool $forgetCache = false): BaseModel
     {
         self::setEndpointAndModel();

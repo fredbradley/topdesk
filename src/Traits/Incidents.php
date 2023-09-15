@@ -16,11 +16,6 @@ use Illuminate\Support\Str;
 trait Incidents
 {
     /**
-     * @param  string  $operatorGroupId
-     * @param  string  $processingStatus
-     * @param  bool  $forgetCache
-     * @return \Illuminate\Support\Collection
-     *
      * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
      */
     public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = 'Open', bool $forgetCache = false): Collection
@@ -57,9 +52,6 @@ trait Incidents
     }
 
     /**
-     * @param  string  $topdeskIncidentNumber
-     * @return object
-     *
      * @deprecated use getIncident() instead
      *
      * @throws \Illuminate\Http\Client\RequestException
@@ -71,7 +63,6 @@ trait Incidents
 
     /**
      * @param  string  $topdeskIncidentNumber  either the UNID or Ticket Number
-     * @return object
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
@@ -114,10 +105,6 @@ trait Incidents
         return $this->post('api/incidents', $options);
     }
 
-    /**
-     * @param  string  $username
-     * @return \Illuminate\Support\Collection|\stdClass
-     */
     public function getOperatorByUsername(string $username, $forgetCache = false): Collection|\stdClass
     {
         $cacheKey = $this->setupCacheObject('operator_'.$username, $forgetCache);
@@ -143,10 +130,6 @@ trait Incidents
         });
     }
 
-    /**
-     * @param  string  $name
-     * @return string
-     */
     public function getOperatorGroupId(string $name, bool $forgetCache = false): string
     {
         $cacheKey = $this->setupCacheObject('get_operator_group_name_'.$name, $forgetCache);
@@ -187,10 +170,6 @@ trait Incidents
         return $result;
     }
 
-    /**
-     * @param  string  $name
-     * @return string
-     */
     public function getProcessingStatusId(string $name, bool $forgetCache = false): string
     {
         $cacheKey = $this->setupCacheObject('getProcessingStatusId_'.$name, $forgetCache);
@@ -201,7 +180,6 @@ trait Incidents
     }
 
     /**
-     * @param  string  $name
      * @return \stdClass
      *
      * @throws \Illuminate\Support\ItemNotFoundException
@@ -217,9 +195,6 @@ trait Incidents
         });
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public function getAllProcessingStatuses(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('statuses', $forgetCache);

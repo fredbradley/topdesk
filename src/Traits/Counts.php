@@ -10,9 +10,6 @@ use Illuminate\Support\Str;
 
 trait Counts
 {
-    /**
-     * @return int
-     */
     public function countTicketsLoggedtoday(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
@@ -22,9 +19,6 @@ trait Counts
         });
     }
 
-    /**
-     * @return int
-     */
     public function countOpenTickets(string $operatorGroupName = 'Facilities', bool $forgetCache = false): int
     {
         $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
@@ -38,9 +32,6 @@ trait Counts
         });
     }
 
-    /**
-     * @return int
-     */
     public function countTicketsDueThisWeek(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
@@ -50,9 +41,6 @@ trait Counts
         });
     }
 
-    /**
-     * @return int
-     */
     public function countBreachedTickets(string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
@@ -62,10 +50,6 @@ trait Counts
         });
     }
 
-    /**
-     * @param  string  $processingStatusId
-     * @return int
-     */
     public function countByProcessingStatusId(string $processingStatusId, string $operatorGroupName = 'I.T. Services'): int
     {
         $cacheKey = Str::slug(__METHOD__.$processingStatusId.$operatorGroupName);
@@ -79,11 +63,6 @@ trait Counts
         );
     }
 
-    /**
-     * @param  array  $firstArray
-     * @param  array  $mergeFrom
-     * @return string
-     */
     private function convertArrayMergeToQueryString(array $firstArray, array $mergeFrom): string
     {
         $str = '';
@@ -102,10 +81,6 @@ trait Counts
         return $str;
     }
 
-    /**
-     * @param  array  $options
-     * @return int
-     */
     public function getNumIncidents(string $fiql, array $options = []): int
     {
         $response = $this->get('api/incidents', array_merge([
@@ -117,10 +92,6 @@ trait Counts
         return collect($response)->count();
     }
 
-    /**
-     * @param  array  $options
-     * @return array
-     */
     public function getIncidents(array $options = []): array
     {
         try {
@@ -145,23 +116,13 @@ trait Counts
     }
 
     /**
-     * @param  string  $operatorId
-     * @param  string  $timeString
-     *
      * @deprecated Use 'countClosedTicketsByTime' instead
-     *
-     * @return int
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
         return $this->countClosedTicketsByTime($operatorId, $timeString);
     }
 
-    /**
-     * @param  string  $operatorId
-     * @param  string  $timeString
-     * @return int
-     */
     public function countClosedTicketsByTime(string $operatorId, string $timeString = 'week'): int
     {
         return Cacher::remember(
@@ -174,7 +135,6 @@ trait Counts
     }
 
     /**
-     * @param  string  $operatorId
      * @return mixed
      */
     public function countOpenTicketsByOperator(string $operatorId): int
@@ -190,10 +150,6 @@ trait Counts
         return $incidents + $this->countWaitingChangeActivitiesByOperatorId($operatorId);
     }
 
-    /**
-     * @param  string  $operatorId
-     * @return int
-     */
     public function countActiveTicketsbyOperator(string $operatorId): int
     {
         return Cacher::remember(
@@ -205,10 +161,6 @@ trait Counts
         );
     }
 
-    /**
-     * @param  string  $operatorId
-     * @return int
-     */
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
     {
         return Cacher::remember(
@@ -220,10 +172,6 @@ trait Counts
         );
     }
 
-    /**
-     * @param  string  $statusName
-     * @return int
-     */
     public function countTicketsByStatus(string $statusName): int
     {
         return Cacher::remember(
@@ -237,9 +185,6 @@ trait Counts
         );
     }
 
-    /**
-     * @return int
-     */
     public function countUnassignedTickets(string $operatorGroup = 'I.T. Services'): int
     {
         return Cacher::remember('countUnassignedITTickets'.$operatorGroup, EasySeconds::minutes(5), function () use ($operatorGroup) {

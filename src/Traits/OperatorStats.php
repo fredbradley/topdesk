@@ -10,10 +10,6 @@ use FredBradley\EasyTime\EasySeconds;
  */
 trait OperatorStats
 {
-    /**
-     * @param  string  $name
-     * @return array
-     */
     public function getOperatorsByOperatorGroup(string $name): array
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
@@ -33,11 +29,6 @@ trait OperatorStats
         );
     }
 
-    /**
-     * @param  string  $name
-     * @param  array  $ignoreUsernames
-     * @return array
-     */
     public function openCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
         $operators = $this->getOperatorsByOperatorGroup($name);
@@ -52,11 +43,6 @@ trait OperatorStats
         return $results;
     }
 
-    /**
-     * @param  string  $name
-     * @param  array  $ignoreUsernames
-     * @return array
-     */
     public function activeCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
         $operators = $this->getOperatorsByOperatorGroup($name);
@@ -71,23 +57,13 @@ trait OperatorStats
     }
 
     /**
-     * @param  string  $name
-     * @param  array  $ignoreUsername
-     *
      * @deprecated Use closedTicketCountsForOperatorGroup
-     *
-     * @return array
      */
     public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsername = []): array
     {
         return $this->closedTicketCountsForOperatorGroup($name, $ignoreUsername);
     }
 
-    /**
-     * @param  string  $name
-     * @param  array  $ignoreUsernames
-     * @return array
-     */
     public function closedTicketCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
         $operators = $this->getOperatorsByOperatorGroup($name);
@@ -103,21 +79,13 @@ trait OperatorStats
     }
 
     /**
-     * @param  string  $operatorId
-     *
      * @deprecated Use getClosedIncidentsForOperator
-     *
-     * @return array
      */
     public function getResolvedIncidentsForOperator(string $operatorId): array
     {
         return $this->getClosedIncidentsForOperator($operatorId);
     }
 
-    /**
-     * @param  string  $operatorId
-     * @return array
-     */
     public function getClosedIncidentsForOperator(string $operatorId): array
     {
         return Cacher::remember(
@@ -143,22 +111,14 @@ trait OperatorStats
     /**
      * Is the sum of Incidents and Change Activities...
      *
-     * @param  string  $operatorId
      *
      * @deprecated
-     *
-     * @return array
      */
     public function getResolvedTicketsForOperator(string $operatorId): array
     {
         return $this->getClosedIncidentsForOperator($operatorId);
     }
 
-    /**
-     * @param  array  $arrayOne
-     * @param  array  $arrayTwo
-     * @return array
-     */
     private function sumTwoArrays(array $arrayOne, array $arrayTwo): array
     {
         $sums = [];

@@ -7,9 +7,6 @@ use FredBradley\EasyTime\EasySeconds;
 
 trait Changes
 {
-    /**
-     * @return array
-     */
     public function allOpenChangeActivities(): array
     {
         return Cacher::remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
@@ -22,10 +19,6 @@ trait Changes
         });
     }
 
-    /**
-     * @param  string  $operatorGroupName
-     * @return array
-     */
     public function unassignedWaitingChangeActivities(string $operatorGroupName = 'I.T. Services'): array
     {
         $operatorId = $this->getOperatorGroupId($operatorGroupName);
@@ -45,10 +38,6 @@ trait Changes
         );
     }
 
-    /**
-     * @param  string  $username
-     * @return array
-     */
     public function waitingChangeActivitiesByUsername(string $username): array
     {
         $operatorId = $this->getOperatorByUsername($username)->id;
@@ -56,11 +45,6 @@ trait Changes
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
     }
 
-    /**
-     * @param  string  $operatorId
-     * @param  string  $timeString
-     * @return array
-     */
     public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): array
     {
         return Cacher::remember(
@@ -77,10 +61,6 @@ trait Changes
         );
     }
 
-    /**
-     * @param  string  $operatorId
-     * @return array
-     */
     public function waitingChangeActivitiesByOperatorId(string $operatorId): array
     {
         return Cacher::remember(
