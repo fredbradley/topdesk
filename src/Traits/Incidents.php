@@ -149,7 +149,7 @@ trait Incidents
         });
     }
 
-    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = null, array $fields = []): array
+    public function deprecatedgetOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = null, array $fields = []): array
     {
         $queries = [
             'operatorGroup.id=='.$operatorGroupId,
