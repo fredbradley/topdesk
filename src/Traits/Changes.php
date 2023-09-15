@@ -11,7 +11,6 @@ trait Changes
      * @return array
      */
     public function allOpenChangeActivities(): array
-
     {
         return Cacher::remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
             return $this->get('api/operatorChangeActivities', [

@@ -2,8 +2,6 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use FredBradley\Cacher\Cacher;
-use FredBradley\EasyTime\EasyMinutes;
 use Illuminate\Http\Client\RequestException;
 
 /**
@@ -25,7 +23,6 @@ trait Assets
             $result = collect($return['dataSet']);
 
             return $result->where('text', '=', $name)->first()['id'];
-
         });
     }
 

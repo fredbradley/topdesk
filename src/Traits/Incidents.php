@@ -6,13 +6,9 @@ use Carbon\Carbon;
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
-
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
-
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
 
 /**
  * Trait Incidents.
@@ -59,7 +55,8 @@ trait Incidents
             }
         });
     }
-  /**
+
+    /**
      * @param  string  $topdeskIncidentNumber
      * @return object
      *
@@ -166,7 +163,6 @@ trait Incidents
             }
 
             throw new \Exception('Could not find Operator Group: '.$name);
-
         });
     }
 

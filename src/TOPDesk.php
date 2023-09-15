@@ -10,15 +10,12 @@ use FredBradley\TOPDesk\Traits\Counts;
 use FredBradley\TOPDesk\Traits\Incidents;
 use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ServerException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Http;
 
 class TOPDesk
@@ -225,6 +222,7 @@ class TOPDesk
      * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
+     *
      * @throws \Exception
      *
      * @deprecated Use specific HTTP OPTION method instead

@@ -20,7 +20,7 @@ abstract class BaseModel
     private static string $model;
 
     /**
-     * @param $object
+     * @param  $object
      */
     public function __construct(array|object $object)
     {

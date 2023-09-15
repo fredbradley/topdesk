@@ -15,7 +15,6 @@ trait Counts
      */
     public function countTicketsLoggedtoday(string $operatorGroupName = 'I.T. Services'): int
     {
-
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(15), function () use ($operatorGroupName) {
@@ -36,7 +35,6 @@ trait Counts
                 'fields' => 'id',
                 'resolved' => 'false',
             ]);
-
         });
     }
 
@@ -45,12 +43,10 @@ trait Counts
      */
     public function countTicketsDueThisWeek(string $operatorGroupName = 'I.T. Services'): int
     {
-
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents('targetDate=lt='.now()->endOfWeek()->toIso8601String().';closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
-
         });
     }
 
@@ -119,7 +115,6 @@ trait Counts
         ], $options));
 
         return collect($response)->count();
-
     }
 
     /**
@@ -159,7 +154,6 @@ trait Counts
      */
     public function countResolvesByTime(string $operatorId, string $timeString = 'week'): int
     {
-
         return $this->countClosedTicketsByTime($operatorId, $timeString);
     }
 
