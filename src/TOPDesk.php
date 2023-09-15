@@ -12,10 +12,8 @@ use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Client;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Http;
 
 class TOPDesk
