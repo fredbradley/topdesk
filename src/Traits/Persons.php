@@ -7,7 +7,7 @@ use Illuminate\Http\Client\RequestException;
 trait Persons
 {
     /**
-     * @param string $username
+     * @param  string  $username
      * @return object
      *
      * @throws RequestException
@@ -24,6 +24,7 @@ trait Persons
 
         return (object) $result->first();
     }
+
     /**
      * @throws RequestException
      */
