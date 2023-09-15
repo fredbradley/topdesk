@@ -25,12 +25,16 @@ trait Counts
     /**
      * @return int
      */
-    public function countOpenTickets(string $operatorGroupName = 'I.T. Services'): int
+    public function countOpenTickets(string $operatorGroupName = 'Facilities', bool $forgetCache = false): int
     {
-        $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
+        $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
-            return $this->getNumIncidents('closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
+            return $this->getNumIncidents([
+                'operator' => self::getOperatorGroupId($operatorGroupName),
+                'fields' => 'id',
+                'resolved' => 'false',
+            ]);
         });
     }
 

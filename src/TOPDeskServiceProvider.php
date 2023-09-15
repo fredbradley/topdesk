@@ -2,6 +2,7 @@
 
 namespace FredBradley\TOPDesk;
 
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\ServiceProvider;
 
 class TOPDeskServiceProvider extends ServiceProvider
@@ -13,6 +14,16 @@ class TOPDeskServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        PendingRequest::macro('topdeskAuth', function () {
+            // Useful sanitization technique
+            $endpointWithTrailingSlash = rtrim(config('topdesk.endpoint'), '/\\').'/';
+
+            return PendingRequest::withBasicAuth(
+                config('topdesk.application_username'),
+                config('topdesk.application_password')
+            )->baseUrl($endpointWithTrailingSlash);
+        });
+
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'fredbradley');
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'fredbradley');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');

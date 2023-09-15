@@ -9,11 +9,17 @@ trait Persons
      *
      * @throws \Illuminate\Http\Client\RequestException
      */
-    public function getPersonsByUsername(string $username): ?object
+    public function getPersonByUsername(string $username): object
     {
-        return collect($this->get('api/persons', [
+        $result = self::query()->get('api/persons', [
             'query' => '(networkLoginName=='.$username.')',
-        ]))->first();
+        ])->throw()->collect();
+
+        if ($result->isEmpty()) {
+            throw new \Exception('Person Not Found');
+        }
+
+        return (object) $result->first();
     }
 
     /**

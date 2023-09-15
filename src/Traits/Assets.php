@@ -2,8 +2,6 @@
 
 namespace FredBradley\TOPDesk\Traits;
 
-use FredBradley\Cacher\Cacher;
-use FredBradley\EasyTime\EasyMinutes;
 use Illuminate\Http\Client\RequestException;
 
 /**
@@ -13,14 +11,18 @@ trait Assets
 {
     /**
      * @param  string  $name
-     * @return mixed
+     * @return string
      */
-    public function getAssetTemplateId(string $name): string
+    public function getAssetTemplateId(string $name, bool $forgetCache = false): string
     {
-        return Cacher::remember('assetTemplateId_'.$name, EasyMinutes::weeks(1), function () use ($name) {
-            $return = $this->get('api/assetmgmt/templates')->dataSet;
+        $cacheKey = $this->setupCacheObject('assetTemplateId_'.$name, $forgetCache);
 
-            return collect($return)->where('text', '=', $name)->first()->id;
+        return Cache::rememberForever($cacheKey, function () use ($name) {
+            $return = self::query()->get('api/assetmgmt/templates')->throw()->collect();
+
+            $result = collect($return['dataSet']);
+
+            return $result->where('text', '=', $name)->first()['id'];
         });
     }
 

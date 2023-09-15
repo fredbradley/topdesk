@@ -2,6 +2,7 @@
 
 namespace FredBradley\TOPDesk;
 
+use FredBradley\Cacher\Cacher;
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
 use FredBradley\TOPDesk\Traits\Assets;
 use FredBradley\TOPDesk\Traits\Changes;
@@ -11,7 +12,10 @@ use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\Persons;
 use GuzzleHttp\Client;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Http;
 
 class TOPDesk
@@ -19,6 +23,14 @@ class TOPDesk
     use Incidents, OperatorStats, Changes, Counts, Persons, Assets;
 
     private $client;
+
+    /**
+     * @return \Illuminate\Http\Client\PendingRequest
+     */
+    public static function query(): PendingRequest
+    {
+        return Http::topdeskAuth();
+    }
 
     /**
      * TOPDesk constructor.
@@ -147,14 +159,24 @@ class TOPDesk
 
     /**
      * @param  string  $string
-     * @return mixed
+     * @return string
      */
-    public function getArchiveReasonId(string $string)
+    public function getArchiveReasonId(string $string): string
     {
-        $result = $this->get('api/archiving-reasons');
-        $results = collect($result);
+        return $this->getArchiveReasons()->where('name', $string)->first()['id'];
+    }
 
-        return $results->where('name', $string)->first()->id;
+    /**
+     * @return \Illuminate\Support\Collection
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getArchiveReasons(): Collection
+    {
+        return self::query()
+                   ->get('api/archiving-reasons')
+                   ->throw()
+                   ->collect();
     }
 
     /**
@@ -167,6 +189,27 @@ class TOPDesk
     private function endpointWithTrailingSlash(): string
     {
         return rtrim(config('topdesk.endpoint'), '/\\').'/';
+    }
+
+    /**
+     * Does some repetitive lifting for us. Calculates whether we should happily
+     * rely on the Cache or to clear that cache object and fetch brand new data.
+     *
+     * It then returns the cacheKey back so the framework can use it.
+     *
+     * @param  string  $cacheKey
+     * @param  bool  $forgetCache
+     * @return string
+     *
+     * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
+     */
+    public function setupCacheObject(string $cacheKey, bool $forgetCache): string
+    {
+        if ($forgetCache || config('topdesk.ignore_cache')) {
+            Cacher::forget($cacheKey);
+        }
+
+        return $cacheKey;
     }
 
     /**
