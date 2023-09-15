@@ -12,9 +12,9 @@ trait OperatorStats
 {
     /**
      * @param  string  $name
-     * @return mixed
+     * @return array
      */
-    public function getOperatorsByOperatorGroup(string $name)
+    public function getOperatorsByOperatorGroup(string $name): array
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
@@ -22,10 +22,8 @@ trait OperatorStats
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
             function () use ($operatorGroupId) {
-                return $this->request(
-                    'GET',
+                return $this->get(
                     'api/operators',
-                    [],
                     [
                         'page_size' => 100,
                         'query' => '(operatorGroup.id=='.$operatorGroupId.')',
@@ -46,8 +44,8 @@ trait OperatorStats
 
         $results = [];
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countOpenTicketsByOperator($operator['id']);
+            if (! in_array($operator->networkLoginName, $ignoreUsernames)) {
+                $results[$operator->networkLoginName] = $this->countOpenTicketsByOperator($operator->id);
             }
         }
 
@@ -74,17 +72,30 @@ trait OperatorStats
 
     /**
      * @param  string  $name
+     * @param  array  $ignoreUsername
+     *
+     * @deprecated Use closedTicketCountsForOperatorGroup
+     *
+     * @return array
+     */
+    public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsername = []): array
+    {
+        return $this->closedTicketCountsForOperatorGroup($name, $ignoreUsername);
+    }
+
+    /**
+     * @param  string  $name
      * @param  array  $ignoreUsernames
      * @return array
      */
-    public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
+    public function closedTicketCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
         $operators = $this->getOperatorsByOperatorGroup($name);
         $results = [];
 
         foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->getResolvedTicketsForOperator($operator['id']);
+            if (! in_array(strtolower($operator->networkLoginName), array_map('strtolower', $ignoreUsernames))) {
+                $results[$operator->networkLoginName] = $this->getResolvedIncidentsForOperator($operator->id); // changed method to getResolvedIncidentsForOperator to as not to include change requests, which we know longer have access to
             }
         }
 
@@ -92,17 +103,30 @@ trait OperatorStats
     }
 
     /**
-     * @param $operatorId
-     * @return \Closure|mixed
+     * @param  string  $operatorId
+     *
+     * @deprecated Use getClosedIncidentsForOperator
+     *
+     * @return array
      */
-    private function getResolvedIncidentsForOperator($operatorId)
+    public function getResolvedIncidentsForOperator(string $operatorId): array
     {
-        return Cacher::setAndGet(
+        return $this->getClosedIncidentsForOperator($operatorId);
+    }
+
+    /**
+     * @param  string  $operatorId
+     * @return array
+     */
+    public function getClosedIncidentsForOperator(string $operatorId): array
+    {
+        return Cacher::remember(
             'resolvedIncidentsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
-                $results = collect($this->getIncidents([
+                $results = collect($this->get('api/incidents', [
                     'operator' => $operatorId,
+                    'pageSize' => 10000,
                 ]));
 
                 return [
@@ -117,48 +141,17 @@ trait OperatorStats
     }
 
     /**
-     * Gets all closed change activities, and separates them into day, week, month, total array.
-     * Have to have 'open' as a key, because of the calculation at self::getResolvedTicketsForOperator
-     * In the collection we are then also only showing change activities that are not skipped!
-     *
-     * @param $operatorId
-     * @return \Closure|mixed
-     */
-    private function getResolvedChangeActivitiesForOperator($operatorId)
-    {
-        return Cacher::setAndGet(
-            'resolvedChangeActivitesByOperatorAndTime_'.$operatorId,
-            EasySeconds::minutes(1),
-            function () use ($operatorId) {
-                $results = collect($this->request('GET', 'api/operatorChangeActivities', [], [
-                    'open' => 'false',
-                    'operator' => $operatorId,
-                    'pageSize' => 1000,
-                ])['results']);
-
-                return [
-                    'closed_day' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOfDay())->count(),
-                    'closed_week' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOf('week'))->count(),
-                    'closed_month' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '>', now()->startOfMonth())->count(),
-                    'closed_total' => $results->where('processingStatus', '!=', 'skipped')->where('finalDate', '=', true)->count(),
-                    'open' => null,
-                ];
-            }
-        );
-    }
-
-    /**
      * Is the sum of Incidents and Change Activities...
      *
-     * @param $operatorId
+     * @param  string  $operatorId
+     *
+     * @deprecated
+     *
      * @return array
      */
-    public function getResolvedTicketsForOperator($operatorId): array
+    public function getResolvedTicketsForOperator(string $operatorId): array
     {
-        return $this->sumTwoArrays(
-            $this->getResolvedIncidentsForOperator($operatorId),
-            $this->getResolvedChangeActivitiesForOperator($operatorId)
-        );
+        return $this->getClosedIncidentsForOperator($operatorId);
     }
 
     /**

@@ -16,11 +16,16 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Innovaat\Topdesk\Api;
+use GuzzleHttp\Client;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 
-class TOPDesk extends Api
+class TOPDesk
 {
     use Incidents, OperatorStats, Changes, Counts, Persons, Assets;
+
+    private $client;
 
     /**
      * @return \Illuminate\Http\Client\PendingRequest
@@ -37,19 +42,16 @@ class TOPDesk extends Api
      * @param  int  $retries
      * @param  array  $guzzleOptions
      */
-    public function __construct($endpoint = 'https://partnerships.topdesk.net/tas/', $retries = 5, $guzzleOptions = [])
+    public function __construct()
     {
-        $this->checkConfig();
-
-        try {
-            parent::__construct($this->endpointWithTrailingSlash(), $retries, $guzzleOptions);
-            $this->useApplicationPassword(
+        $this->client = new Client([
+            'base_uri' => $this->endpointWithTrailingSlash(),
+            'auth' => [
                 config('topdesk.application_username'),
-                config('topdesk.application_password')
-            );
-        } catch (ConnectException $exception) {
-            throw $exception;
-        }
+                config('topdesk.application_password'),
+            ],
+        ]);
+        $this->checkConfig();
     }
 
     /**
@@ -70,6 +72,92 @@ class TOPDesk extends Api
                 );
             }
         }
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  array  $data
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function delete(string $uri, array $data = []): array|object
+    {
+        return $this->process($this->setupResponse()->delete($uri, $data));
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  array  $data
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function patch(string $uri, array $data = []): array|object
+    {
+        return $this->process($this->setupResponse()->patch($uri, $data));
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  array  $data
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function put(string $uri, array $data = []): array|object
+    {
+        return $this->process($this->setupResponse()->put($uri, $data));
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  array  $data
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function post(string $uri, array $data = []): array|object
+    {
+        return $this->process($this->setupResponse()->post($uri, $data));
+    }
+
+    /**
+     * @param  string  $uri
+     * @param  array  $query
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function get(string $uri, array $query = []): array|object
+    {
+        return $this->process($this->setupResponse()->get($uri, $query));
+    }
+
+    /**
+     * @param  \Illuminate\Http\Client\Response  $response
+     * @return array|object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    private function process(Response $response): array|object
+    {
+        if ($response->status() === \Illuminate\Http\Response::HTTP_NO_CONTENT) {
+            return [];
+        }
+
+        return $response->throw()->object();
+    }
+
+    /**
+     * @return \Illuminate\Http\Client\PendingRequest
+     */
+    private function setupResponse(): PendingRequest
+    {
+        return Http::acceptJson()->withBasicAuth(
+            config('topdesk.application_username'),
+            config('topdesk.application_password')
+        )->baseUrl($this->endpointWithTrailingSlash());
     }
 
     /**
@@ -130,35 +218,25 @@ class TOPDesk extends Api
     /**
      * Shorthand function to create requests with JSON body and query parameters.
      *
-     * @param $method
+     * @param  $method
      * @param  string  $uri
      * @param  array  $json
      * @param  array  $query
      * @param  array  $options
      * @param  bool  $decode  JSON decode response body (defaults to true).
      * @return mixed|ResponseInterface
+     * @throws \Exception
      *
-     * @deprecated We would rather use the Laravel HTTP Client Facade
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @deprecated Use specific HTTP OPTION method instead
      */
-    public function request($method, $uri = '', array $json = [], array $query = [], array $options = [], $decode = true)
-    {
-        try {
-            $response = $this->client->request($method, $uri, array_merge([
-                'json' => $json,
-                'query' => $query,
-            ], $options));
-            // return $response->getStatusCode();
-
-            return $decode ? json_decode((string) $response->getBody(), true) : (string) $response->getBody();
-        } catch (ConnectException $exception) {
-            abort(500, 'Connection to TOPdesk Failed');
-        } catch (ServerException $exception) {
-            if ($exception->getCode() === 503) {
-                Log::info('TOPdesk is unavailable');
-            }
-            abort(417, 'TOPdesk is unavailable at this time...');
-        }
+    public function request(
+        $method,
+        $uri = '',
+        array $body = [],
+        array $query = [],
+        array $options = [],
+        $decode = true
+    ) {
+        throw new \Exception('Method Deprecated. Use specific HTTP OPTION method instead.');
     }
 }

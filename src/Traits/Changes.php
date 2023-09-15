@@ -8,55 +8,51 @@ use FredBradley\EasyTime\EasySeconds;
 trait Changes
 {
     /**
-     * @return mixed
+     * @return array
      */
-    public function allOpenChangeActivities()
+    public function allOpenChangeActivities(): array
+
     {
-        return Cacher::setAndGet('operatorChangeActivites', EasySeconds::minutes(9), function () {
-            return $this->request('GET', 'api/operatorChangeActivities', [], [
+        return Cacher::remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
+            return $this->get('api/operatorChangeActivities', [
                 'open' => 'true',
                 'sort' => 'plannedFinalDate',
                 'blocked' => 'false',
                 'archived' => 'false',
-            ])['results'];
+            ])->results;
         });
     }
 
     /**
-     * @return mixed
+     * @param  string  $operatorGroupName
+     * @return array
      */
-    public function unassignedWaitingChangeActivities()
+    public function unassignedWaitingChangeActivities(string $operatorGroupName = 'I.T. Services'): array
     {
-        $operatorId = $this->getOperatorGroupId('I.T. Services');
+        $operatorId = $this->getOperatorGroupId($operatorGroupName);
 
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'unassignedWaitingChangeActivities_'.$operatorId,
-            EasySeconds::minutes(8),
+            EasySeconds::minutes(10),
             function () use ($operatorId) {
-                return $this->request('GET', 'api/operatorChangeActivities', [], [
+                return $this->get('api/operatorChangeActivities', [
                     'open' => 'true',
                     'sort' => 'plannedFinalDate',
                     'blocked' => 'false',
                     'archived' => 'false',
-                    'operatorGroup' => $operatorId,
-                ])['results'];
+                    'operator' => $operatorId,
+                ])->results;
             }
         );
     }
 
     /**
      * @param  string  $username
-     * @return mixed
+     * @return array
      */
-    public function waitingChangeActivitiesByUsername(string $username)
+    public function waitingChangeActivitiesByUsername(string $username): array
     {
-        $operatorId = Cacher::setAndGet(
-            'getOperatorByUsername_'.$username,
-            EasySeconds::hours(1),
-            function () use ($username) {
-                return $this->getOperatorByUsername($username)['id'];
-            }
-        );
+        $operatorId = $this->getOperatorByUsername($username)->id;
 
         return $this->waitingChangeActivitiesByOperatorId($operatorId);
     }
@@ -64,41 +60,41 @@ trait Changes
     /**
      * @param  string  $operatorId
      * @param  string  $timeString
-     * @return mixed
+     * @return array
      */
-    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString)
+    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): array
     {
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId.'_'.$timeString,
             EasySeconds::hours(1),
             function () use ($operatorId, $timeString) {
-                return $this->request('GET', 'api/operatorChangeActivities', [], [
+                return $this->get('api/operatorChangeActivities', [
                     'open' => 'false',
                     'operator' => $operatorId,
                     'pageSize' => 1000,
                     'finalDateAfter' => now()->startOf($timeString)->format('Y-m-d'),
-                ]);
+                ])->results;
             }
         );
     }
 
     /**
      * @param  string  $operatorId
-     * @return mixed
+     * @return array
      */
-    public function waitingChangeActivitiesByOperatorId(string $operatorId)
+    public function waitingChangeActivitiesByOperatorId(string $operatorId): array
     {
-        return Cacher::setAndGet(
+        return Cacher::remember(
             'waitingChangeActivitiesByOperatorId_'.$operatorId,
             EasySeconds::hours(1),
             function () use ($operatorId) {
-                return $this->request('GET', 'api/operatorChangeActivities', [], [
+                return $this->get('api/operatorChangeActivities', [
                     'open' => 'true',
                     'sort' => 'plannedFinalDate',
                     'blocked' => 'false',
                     'archived' => 'false',
                     'operator' => $operatorId,
-                ])['results'];
+                ])->results;
             }
         );
     }

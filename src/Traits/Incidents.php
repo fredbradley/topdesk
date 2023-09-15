@@ -6,8 +6,13 @@ use Carbon\Carbon;
 use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
+
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
 
 /**
  * Trait Incidents.
@@ -53,6 +58,63 @@ trait Incidents
                 dd($exception->getMessage());
             }
         });
+    }
+  /**
+     * @param  string  $topdeskIncidentNumber
+     * @return object
+     *
+     * @deprecated use getIncident() instead
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getIncidentbyNumber(string $topdeskIncidentNumber): object
+    {
+        return $this->getIncident($topdeskIncidentNumber);
+    }
+
+    /**
+     * @param  string  $topdeskIncidentNumber  either the UNID or Ticket Number
+     * @return object
+     *
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function getIncident(string $topdeskIncidentNumber): object
+    {
+        if (Str::isUuid($topdeskIncidentNumber)) {
+            return $this->get('api/incidents/id/'.$topdeskIncidentNumber);
+        }
+
+        return $this->get('api/incidents/number/'.$topdeskIncidentNumber);
+    }
+
+    public function createNewFrom(string $topdeskIncidentNumber)
+    {
+        $incident = $this->getIncident($topdeskIncidentNumber);
+        $unsets = ['id', 'number', 'asset', 'externalLinks', 'timeSpent', 'requests', 'caller'];
+        $incident['callerLookup']['id'] = $incident['caller']['id'];
+
+        foreach ($unsets as $unset) {
+            unset($incident[$unset]);
+        }
+        $incident['category'] =
+            [
+                'id' => $incident['category']['id'],
+            ];
+        unset($incident['subcategory']['name']);
+
+        dd($incident);
+
+        $result = $this->createIncident($incident);
+
+        return $result;
+    }
+
+    /**
+     * @throws \Illuminate\Http\Client\RequestException
+     */
+    public function createIncident(array $options): object
+    {
+        return $this->post('api/incidents', $options);
     }
 
     /**
@@ -104,7 +166,29 @@ trait Incidents
             }
 
             throw new \Exception('Could not find Operator Group: '.$name);
+
         });
+    }
+
+    public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = null, array $fields = []): array
+    {
+        $queries = [
+            'operatorGroup.id=='.$operatorGroupId,
+        ];
+        if (is_null($processingStatus)) {
+            $queries[] = 'closed==false';
+        } else {
+            $queries[] = 'processingStatus.name=="'.$processingStatus.'"';
+        }
+
+        $customFieldsList = empty($fields) ? null : implode(',', $fields);
+        $result = $this->get('api/incidents', [
+            'pageSize' => 10,
+            'query' => implode(';', $queries),
+            'fields' => $customFieldsList,
+        ]);
+
+        return $result;
     }
 
     /**
@@ -122,7 +206,9 @@ trait Incidents
 
     /**
      * @param  string  $name
-     * @return array
+     * @return \stdClass
+     *
+     * @throws \Illuminate\Support\ItemNotFoundException
      */
     public function getProcessingStatus(string $name, bool $forgetCache = false): array
     {
