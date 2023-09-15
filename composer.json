@@ -10,11 +10,13 @@
         }
     ],
     "homepage": "https://github.com/fredbradley/topdesk",
-    "keywords": ["Laravel", "TOPDesk"],
+    "keywords": [
+        "Laravel",
+        "TOPDesk"
+    ],
     "require": {
-	"php": "^8.0",
-        "illuminate/support": "~8|~9|~10",
-        "innovaat/topdesk-api": "0.0.*",
+        "php": "^8.0",
+        "illuminate/support": "~9|~10",
         "fredbradley/cacher": "^2.0",
         "madebybob/php-number": "^1.4",
         "fredbradley/easytime": "^1.0"
