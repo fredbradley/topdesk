@@ -24,11 +24,8 @@ trait Counts
         $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
 
         return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
-            return $this->getNumIncidents([
-                'operator' => self::getOperatorGroupId($operatorGroupName),
-                'fields' => 'id',
-                'resolved' => 'false',
-            ]);
+            $fiql = 'fields==id;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName).';closed==false';
+            return $this->getNumIncidents($fiql);
         });
     }
 
