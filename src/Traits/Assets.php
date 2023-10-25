@@ -3,6 +3,7 @@
 namespace FredBradley\TOPDesk\Traits;
 
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Trait Assets.
