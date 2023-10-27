@@ -170,15 +170,15 @@ trait Counts
         );
     }
 
-    public function countTicketsByStatus(string $statusName): int
+    public function countTicketsByStatus(string $statusName, string $operatorGroup = 'I.T. Services'): int
     {
         return Cacher::remember(
             'countTicketsByStatus_'.$statusName,
             EasySeconds::minutes(5),
-            function () use ($statusName) {
+            function () use ($statusName, $operatorGroup) {
                 $statusId = $this->getProcessingStatusId($statusName);
 
-                return $this->countByProcessingStatusId($statusId);
+                return $this->countByProcessingStatusId($statusId, $operatorGroup);
             }
         );
     }
