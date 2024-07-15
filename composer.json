@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/support": "~9|~10",
+        "illuminate/support": "~9|~10|~11",
         "fredbradley/cacher": "^2.0",
         "madebybob/php-number": "^1.4",
         "fredbradley/easytime": "^1.0"
