@@ -4,7 +4,9 @@ namespace FredBradley\TOPDesk\Traits;
 
 use Carbon\Carbon;
 use FredBradley\Cacher\Cacher;
+use FredBradley\Cacher\Exceptions\FrameworkNotDetected;
 use FredBradley\EasyTime\EasySeconds;
+use FredBradley\TOPDesk\Exceptions\OperatorGroupNotFound;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
@@ -130,6 +132,9 @@ trait Incidents
         });
     }
 
+    /**
+     * @throws FrameworkNotDetected
+     */
     public function getOperatorGroupId(string $name, bool $forgetCache = false): string
     {
         $cacheKey = $this->setupCacheObject('get_operator_group_name_'.$name, $forgetCache);
@@ -145,7 +150,7 @@ trait Incidents
                 return $collection->id;
             }
 
-            throw new \Exception('Could not find Operator Group: '.$name);
+            throw new OperatorGroupNotFound('Could not find Operator Group: '.$name);
         });
     }
 
