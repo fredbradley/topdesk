@@ -19,7 +19,7 @@ trait Persons
         ])->throw()->collect();
 
         if ($result->isEmpty()) {
-            throw new \Exception('Person Not Found');
+            throw new \Exception('Person Not Found', 404);
         }
 
         return (object) $result->first();
