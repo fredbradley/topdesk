@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/support": "~9|~10|~11",
+        "illuminate/support": "~9|~10|~11|~12",
         "fredbradley/cacher": "^2.0",
         "madebybob/php-number": "^1.4",
         "fredbradley/easytime": "^1.0"
@@ -25,7 +25,7 @@
         "phpunit/phpunit": "^9.0",
         "mockery/mockery": "^1.1",
         "orchestra/testbench": "*",
-        "laravel/pint": "^1.13"
+        "laravel/pint": "*"
     },
     "autoload": {
         "psr-4": {
