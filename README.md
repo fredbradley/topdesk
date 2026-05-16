@@ -7,7 +7,8 @@
 This is a TOPdesk API wrapper for Laravel. Using Laravel's HTTP Facade. Please check out the [Version 1 releases](https://github.com/fredbradley/topdesk/tree/v1.2.15) if you do not use Laravel, or the original package from [Innovaat](https://github.com/innovaat/topdesk-php).  
 
 ## Minimum Requirements
-- PHP 8.0 or higher
+- PHP 8.2 or higher
+- Laravel 9–13
 
 ## Installation
 

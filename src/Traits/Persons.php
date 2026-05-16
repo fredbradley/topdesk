@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Traits;
 
-use Illuminate\Http\Client\RequestException;
+use FredBradley\TOPDesk\Exceptions\PersonNotFound;
 
 trait Persons
 {
     /**
-     * @param  string  $username
-     * @return object
-     *
-     * @throws RequestException
+     * @throws PersonNotFound
+     * @throws \Illuminate\Http\Client\RequestException
      */
     public function getPersonByUsername(string $username): object
     {
@@ -19,17 +19,23 @@ trait Persons
         ])->throw()->collect();
 
         if ($result->isEmpty()) {
-            throw new \Exception('Person Not Found', 404);
+            // Pattern: named domain exception instead of the base \Exception class.
+            // Callers can catch PersonNotFound specifically, and the 404 code means
+            // HTTP layers (e.g. Handler::render) can map it to a response automatically.
+            throw new PersonNotFound($username);
         }
 
         return (object) $result->first();
     }
 
     /**
-     * @throws RequestException
+     * Uses the v2 persons endpoint (/persons/{id}) which does not require the
+     * intermediate /id/ segment present in older API versions.
+     *
+     * @throws \Illuminate\Http\Client\RequestException
      */
     public function getPersonById(string $id): object
     {
-        return $this->get('api/persons/id/'.$id);
+        return $this->get('api/persons/'.$id);
     }
 }

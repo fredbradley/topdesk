@@ -15,17 +15,20 @@
         "TOPDesk"
     ],
     "require": {
-        "php": "^8.0",
-        "illuminate/support": "~9|~10|~11|~12",
-        "fredbradley/cacher": "^2.0",
-        "madebybob/php-number": "^1.4",
+        "php": "^8.2",
+        "illuminate/support": "~9|~10|~11|~12|~13",
         "fredbradley/easytime": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
         "mockery/mockery": "^1.1",
         "orchestra/testbench": "*",
         "laravel/pint": "*"
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "test:coverage": "./vendor/bin/pest --coverage"
     },
     "autoload": {
         "psr-4": {
@@ -45,6 +48,11 @@
             "aliases": {
                 "TOPDesk": "FredBradley\\TOPDesk\\Facades\\TOPDesk"
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }
