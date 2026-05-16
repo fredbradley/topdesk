@@ -37,8 +37,7 @@ it('updates an operator via PATCH to api/operators/id/{id}', function () {
 
     TOPDesk::updateOperator('op-uuid', ['phoneNumber' => '+44 1234 000000']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/operators/id/op-uuid')
     );
 });
@@ -48,8 +47,7 @@ it('archives an operator via PATCH to api/operators/id/{id}/archive', function (
 
     TOPDesk::archiveOperator('op-uuid');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/operators/id/op-uuid/archive')
     );
 });
@@ -102,7 +100,7 @@ it('creates an operator group via POST', function () {
 it('returns permission groups as a cached Collection', function () {
     Http::fake(['*api/permissiongroups*' => Http::response([['id' => 'perm-1', 'name' => 'Read-only']])]);
 
-    $first  = TOPDesk::getPermissionGroups();
+    $first = TOPDesk::getPermissionGroups();
     $second = TOPDesk::getPermissionGroups();
 
     expect($first)->toBeInstanceOf(Collection::class);

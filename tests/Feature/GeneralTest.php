@@ -49,8 +49,7 @@ it('passes the index and start parameters to the search endpoint', function () {
 
     TOPDesk::search('office', 'branches', 10);
 
-    Http::assertSent(fn ($r) =>
-        str_contains($r->url(), 'index=branches') &&
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'index=branches') &&
         str_contains($r->url(), 'start=10')
     );
 });
@@ -60,7 +59,7 @@ it('returns countries as a cached Collection', function () {
         ['id' => 'c-1', 'name' => 'United Kingdom'],
     ])]);
 
-    $first  = TOPDesk::getCountries();
+    $first = TOPDesk::getCountries();
     $second = TOPDesk::getCountries();
 
     expect($first)->toBeInstanceOf(Collection::class)->toHaveCount(1);

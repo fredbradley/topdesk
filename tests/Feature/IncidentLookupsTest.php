@@ -7,16 +7,16 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
 dataset('incident_lookup_methods', [
-    'call types'           => ['getCallTypes',          'api/incidents/call_types'],
-    'durations'            => ['getDurations',           'api/incidents/durations'],
-    'entry types'          => ['getEntryTypes',          'api/incidents/entry_types'],
-    'impacts'              => ['getImpacts',             'api/incidents/impacts'],
-    'priorities'           => ['getPriorities',          'api/incidents/priorities'],
-    'urgencies'            => ['getUrgencies',           'api/incidents/urgencies'],
-    'closure codes'        => ['getClosureCodes',        'api/incidents/closure_codes'],
-    'escalation reasons'   => ['getEscalationReasons',   'api/incidents/escalation-reasons'],
+    'call types' => ['getCallTypes',          'api/incidents/call_types'],
+    'durations' => ['getDurations',           'api/incidents/durations'],
+    'entry types' => ['getEntryTypes',          'api/incidents/entry_types'],
+    'impacts' => ['getImpacts',             'api/incidents/impacts'],
+    'priorities' => ['getPriorities',          'api/incidents/priorities'],
+    'urgencies' => ['getUrgencies',           'api/incidents/urgencies'],
+    'closure codes' => ['getClosureCodes',        'api/incidents/closure_codes'],
+    'escalation reasons' => ['getEscalationReasons',   'api/incidents/escalation-reasons'],
     'deescalation reasons' => ['getDeescalationReasons', 'api/incidents/deescalation-reasons'],
-    'time spent reasons'   => ['getTimeSpentReasons',    'api/timespent-reasons'],
+    'time spent reasons' => ['getTimeSpentReasons',    'api/timespent-reasons'],
 ]);
 
 it('returns lookup list as a Collection from the correct endpoint', function (string $method, string $urlPath) {

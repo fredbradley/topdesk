@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace FredBradley\TOPDesk\Models;
 
-class Location extends BaseModel {}
+class Location extends BaseModel
+{
+}

@@ -49,8 +49,7 @@ it('updates a person via PATCH to api/persons/{id}', function () {
 
     TOPDesk::updatePerson('person-uuid', ['phoneNumber' => '+44 1234 567890']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/persons/person-uuid')
     );
 });
@@ -60,8 +59,7 @@ it('archives a person via PATCH to api/persons/id/{id}/archive', function () {
 
     TOPDesk::archivePerson('person-uuid');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/persons/id/person-uuid/archive')
     );
 });

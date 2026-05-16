@@ -41,8 +41,7 @@ it('updates a branch via PATCH to api/branches/id/{id}', function () {
 
     TOPDesk::updateBranch('br-1', ['phone' => '+44 20 0000 0000']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/branches/id/br-1')
     );
 });
@@ -52,8 +51,7 @@ it('archives a branch via PATCH to api/branches/id/{id}/archive', function () {
 
     TOPDesk::archiveBranch('br-1');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/branches/id/br-1/archive')
     );
 });
@@ -61,7 +59,7 @@ it('archives a branch via PATCH to api/branches/id/{id}/archive', function () {
 it('resolves a branch id by name from the lookup endpoint (cached)', function () {
     Http::fake(['*api/branches/lookup*' => Http::response([['id' => 'br-1', 'name' => 'London HQ']])]);
 
-    $first  = TOPDesk::getBranchId('London HQ');
+    $first = TOPDesk::getBranchId('London HQ');
     $second = TOPDesk::getBranchId('London HQ');
 
     expect($first)->toBe('br-1')->and($second)->toBe('br-1');

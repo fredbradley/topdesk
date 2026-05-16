@@ -25,8 +25,7 @@ it('merges caller options into the incident list request', function () {
 
     TOPDesk::getListOfIncidents(['page_size' => 25, 'status' => 'firstLine']);
 
-    Http::assertSent(fn ($r) =>
-        str_contains($r->url(), 'page_size=25') &&
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'page_size=25') &&
         str_contains($r->url(), 'status=firstLine')
     );
 });
@@ -69,8 +68,7 @@ it('updates an incident by uuid via PATCH to api/incidents/id/{id}', function ()
 
     TOPDesk::updateIncident($id, ['briefDescription' => 'Updated']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), "api/incidents/id/{$id}")
     );
 });
@@ -80,8 +78,7 @@ it('updates an incident by number via PATCH to api/incidents/number/{number}', f
 
     TOPDesk::updateIncidentByNumber('I-001', ['briefDescription' => 'Updated']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'api/incidents/number/I-001')
     );
 });

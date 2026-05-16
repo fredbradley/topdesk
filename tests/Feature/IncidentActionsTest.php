@@ -107,8 +107,7 @@ it('escalates an incident by id via PUT', function () {
 
     TOPDesk::escalateIncident(INCIDENT_ID, 'reason-uuid');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PUT' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PUT' &&
         str_contains($r->url(), 'id/'.INCIDENT_ID.'/escalate')
     );
 });
@@ -134,8 +133,7 @@ it('archives an incident by id via PUT with a reason id', function () {
 
     TOPDesk::archiveIncident(INCIDENT_ID, 'reason-uuid');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PUT' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PUT' &&
         str_contains($r->url(), 'id/'.INCIDENT_ID.'/archive')
     );
 });

@@ -20,8 +20,7 @@ it('lists assets via GET api/assetmgmt/assets', function () {
 
     TOPDesk::getListOfAssets();
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'GET' &&
+    Http::assertSent(fn ($r) => $r->method() === 'GET' &&
         str_contains($r->url(), 'api/assetmgmt/assets')
     );
 });
@@ -45,8 +44,7 @@ it('creates an asset by template id via POST', function () {
     $result = TOPDesk::createAssetByTemplateId('tmpl-uuid', ['name' => 'LAPTOP-002']);
 
     expect($result)->toBeObject()->and($result->id)->toBe('new-asset');
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'POST' &&
+    Http::assertSent(fn ($r) => $r->method() === 'POST' &&
         str_contains($r->url(), 'assetmgmt/assets/templateId/tmpl-uuid')
     );
 });
@@ -56,8 +54,7 @@ it('updates an asset by template id via PATCH', function () {
 
     TOPDesk::updateAssetByTemplateId('tmpl-uuid', 'asset-uuid', ['serialNumber' => 'SN999']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PATCH' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH' &&
         str_contains($r->url(), 'assetmgmt/assets/templateId/tmpl-uuid/asset-uuid')
     );
 });
@@ -67,8 +64,7 @@ it('archives an asset via POST to api/assetmgmt/assets/{id}/archive', function (
 
     TOPDesk::archiveAsset('asset-uuid');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'POST' &&
+    Http::assertSent(fn ($r) => $r->method() === 'POST' &&
         str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/archive')
     );
 });
@@ -86,8 +82,7 @@ it('deletes assets via POST to api/assetmgmt/assets/delete with an assetIds arra
 
     TOPDesk::deleteAssets(['asset-1', 'asset-2']);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'POST' &&
+    Http::assertSent(fn ($r) => $r->method() === 'POST' &&
         str_contains($r->url(), 'assetmgmt/assets/delete')
     );
 });
@@ -105,8 +100,7 @@ it('adds an asset assignment via PUT', function () {
 
     TOPDesk::addAssetAssignment('asset-uuid', ['person' => ['id' => 'person-uuid']]);
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'PUT' &&
+    Http::assertSent(fn ($r) => $r->method() === 'PUT' &&
         str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/assignments')
     );
 });
@@ -116,8 +110,7 @@ it('removes an asset assignment via DELETE', function () {
 
     TOPDesk::removeAssetAssignment('asset-uuid', 'link-1');
 
-    Http::assertSent(fn ($r) =>
-        $r->method() === 'DELETE' &&
+    Http::assertSent(fn ($r) => $r->method() === 'DELETE' &&
         str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/assignments/link-1')
     );
 });
@@ -128,7 +121,7 @@ it('returns asset statuses as a cached Collection', function () {
         ['id' => 's-2', 'name' => 'In stock'],
     ])]);
 
-    $first  = TOPDesk::getAssetStatuses();
+    $first = TOPDesk::getAssetStatuses();
     $second = TOPDesk::getAssetStatuses();
 
     expect($first)->toBeInstanceOf(Collection::class)->toHaveCount(2);

@@ -25,10 +25,10 @@ class TestCase extends Orchestra
     protected function defineEnvironment($app): void
     {
         $app['config']->set('topdesk', [
-            'endpoint'             => 'https://company.topdesk.net/tas/',
+            'endpoint' => 'https://company.topdesk.net/tas/',
             'application_username' => 'test@example.com',
             'application_password' => 'test-password',
-            'ignore_cache'         => false,
+            'ignore_cache' => false,
         ]);
 
         // Use the array driver so cache is isolated per test.
