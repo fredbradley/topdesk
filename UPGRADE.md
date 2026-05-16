@@ -1,8 +1,8 @@
-# Upgrade Guide: master → 4.x
+# Upgrade Guide: 3.x → 4.x
 
 ## Requirements
 
-| | master | 4.x |
+| | 3.x | 4.x |
 |---|---|---|
 | PHP | ^8.0 | ^8.2 |
 | Laravel | ~9\|~10\|~11\|~12 | ~9\|~10\|~11\|~12\|~13 |
