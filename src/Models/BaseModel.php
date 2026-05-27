@@ -64,12 +64,10 @@ abstract class BaseModel
             forgetCache: $forgetCache);
 
         return TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
-            $result = TOPDesk::query()->get('api/'.self::$endpoint.'/', [
+            return TOPDesk::query()->get('api/'.self::$endpoint.'/', [
                 'query' => $variableKey.'=='.$variableValue,
-            ])->throw()->collect()->mapInto(self::$model);
-
-            return $result;
-        });
+            ])->throw()->collect();
+        })->mapInto(self::$model);
     }
 
     public static function findById(string $id, bool $forgetCache = false): BaseModel
@@ -78,16 +76,16 @@ abstract class BaseModel
 
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.'id'.$id), forgetCache: $forgetCache);
 
-        return TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
+        $data = TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
             // Some APIs use /{id} directly; others use /id/{id}
             $noIdPrefix = [Asset::class, PersonGroup::class, Supplier::class];
             $endpoint = in_array(self::$model, $noIdPrefix)
                 ? 'api/'.self::$endpoint.'/'.$id
                 : 'api/'.self::$endpoint.'/id/'.$id;
 
-            $result = TOPDesk::query()->get($endpoint)->throw()->object();
-
-            return new self::$model($result);
+            return TOPDesk::query()->get($endpoint)->throw()->object();
         });
+
+        return new self::$model($data);
     }
 }
