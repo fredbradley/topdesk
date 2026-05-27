@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\TOPDesk\Exceptions\PersonNotFound;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 
 trait Persons
 {
     /**
      * @throws PersonNotFound
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function getPersonByUsername(string $username): object
     {
@@ -32,10 +34,14 @@ trait Persons
      * Uses the v2 persons endpoint (/persons/{id}) which does not require the
      * intermediate /id/ segment present in older API versions.
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException|ConnectionException
      */
     public function getPersonById(string $id): object
     {
-        return $this->get('api/persons/'.$id);
+        return $this->process(
+            self::query()
+                ->accept('application/x-topdesk-v2+json')
+                ->get('api/persons/'.$id)
+        );
     }
 }
