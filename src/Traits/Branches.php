@@ -59,7 +59,7 @@ trait Branches
     {
         $cacheKey = $this->setupCacheObject('branch_id_'.md5($name), $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::hours(1), function () use ($name) {
+        return self::cache()->remember($cacheKey, EasySeconds::hours(1), function () use ($name) {
             return self::query()->get('api/branches/lookup', ['name' => $name])->throw()->collect()->first()['id'];
         });
     }
@@ -68,14 +68,14 @@ trait Branches
     {
         $cacheKey = $this->setupCacheObject('branch_designations', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/branches/designations')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/branches/designations')->throw()->collect());
     }
 
     public function getBranchBuildingLevels(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('branch_building_levels', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/branches/buildingLevels')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/branches/buildingLevels')->throw()->collect());
     }
 
     public function getBranchAttachments(string $id, array $options = []): Collection

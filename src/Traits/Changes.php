@@ -19,7 +19,7 @@ trait Changes
 
     public function allOpenChangeActivities(): Collection
     {
-        return Cache::remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
+        return self::cache()->remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
             return collect($this->get('api/operatorChangeActivities', [
                 'open' => 'true',
                 'sort' => 'plannedFinalDate',
@@ -33,7 +33,7 @@ trait Changes
     {
         $operatorId = $this->getOperatorGroupId($operatorGroupName);
 
-        return Cache::remember(
+        return self::cache()->remember(
             'unassignedWaitingChangeActivities_'.$operatorId,
             EasySeconds::minutes(10),
             fn () => collect($this->get('api/operatorChangeActivities', [
@@ -53,7 +53,7 @@ trait Changes
 
     public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): Collection
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId.'_'.$timeString,
             EasySeconds::hours(1),
             fn () => collect($this->get('api/operatorChangeActivities', [
@@ -67,7 +67,7 @@ trait Changes
 
     public function waitingChangeActivitiesByOperatorId(string $operatorId): Collection
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'waitingChangeActivitiesByOperatorId_'.$operatorId,
             EasySeconds::hours(1),
             fn () => collect($this->get('api/operatorChangeActivities', [

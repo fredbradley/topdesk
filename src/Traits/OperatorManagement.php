@@ -119,6 +119,6 @@ trait OperatorManagement
     {
         $cacheKey = $this->setupCacheObject('permission_groups', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/permissiongroups')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/permissiongroups')->throw()->collect());
     }
 }

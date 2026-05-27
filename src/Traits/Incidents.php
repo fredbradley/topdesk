@@ -30,7 +30,7 @@ trait Incidents
             $processingStatus = 'Closed';
         }
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupId, $processingStatus, $processingStatusOperator) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupId, $processingStatus, $processingStatusOperator) {
             try {
                 $processingStatusId = $this->getProcessingStatusId($processingStatus);
                 $response = self::query()->get('api/incidents', [
@@ -142,7 +142,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('operator_'.$username, $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::months(1), function () use ($username) {
+        return self::cache()->remember($cacheKey, EasySeconds::months(1), function () use ($username) {
             $result = self::query()->get('api/operators', [
                 'page_size' => 1,
                 'query' => '(networkLoginName=='.$username.')',
@@ -170,7 +170,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('get_operator_group_name_'.$name, $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::months(1), function () use ($name) {
+        return self::cache()->remember($cacheKey, EasySeconds::months(1), function () use ($name) {
             $result = self::query()->get('api/operatorgroups/lookup', [
                 'name' => $name,
                 'archived' => false,
@@ -210,7 +210,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('getProcessingStatusId_'.$name, $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
             return $this->getProcessingStatus($name, $forgetCache)['id'];
         });
     }
@@ -224,7 +224,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('status_'.$name, $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
             $statuses = $this->getAllProcessingStatuses($forgetCache);
 
             return $statuses->where('name', $name)->first() ?? throw new \Exception('Status Not Found');
@@ -235,7 +235,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('statuses', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::days(30), function () {
+        return self::cache()->remember($cacheKey, EasySeconds::days(30), function () {
             return self::query()->get('api/incidents/statuses')->collect();
         });
     }

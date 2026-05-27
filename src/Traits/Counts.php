@@ -14,7 +14,7 @@ trait Counts
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(15), function () use ($operatorGroupName) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(15), function () use ($operatorGroupName) {
             return $this->getNumIncidents('operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName).';creationDate=gt='.now()->startOfDay()->toIso8601String());
         });
     }
@@ -23,7 +23,7 @@ trait Counts
     {
         $cacheKey = $this->setupCacheObject('openTickets_'.$operatorGroupName, $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents('operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName).';closed==false');
         });
     }
@@ -32,7 +32,7 @@ trait Counts
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents('targetDate=lt='.now()->endOfWeek()->toIso8601String().';closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
         });
     }
@@ -41,7 +41,7 @@ trait Counts
     {
         $cacheKey = Str::slug(__METHOD__.$operatorGroupName);
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupName) {
             return $this->getNumIncidents('targetDate=gt='.now()->toIso8601String().';closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName));
         });
     }
@@ -50,7 +50,7 @@ trait Counts
     {
         $cacheKey = Str::slug(__METHOD__.$processingStatusId.$operatorGroupName);
 
-        return Cache::remember($cacheKey, EasySeconds::minutes(5), fn () => $this->getNumIncidents(
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), fn () => $this->getNumIncidents(
             'closed==false;operatorGroup.id=='.$this->getOperatorGroupId($operatorGroupName).';processingStatus.id=='.$processingStatusId
         ));
     }
@@ -80,7 +80,7 @@ trait Counts
 
     public function countClosedTicketsByTime(string $operatorId, string $timeString = 'week'): int
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'incidentsResolvedByOperatorAndTime_'.$operatorId.$timeString,
             EasySeconds::minutes(5),
             fn () => $this->getNumIncidents('operator.id=='.$operatorId.';closed==true;closedDate=gt='.now()->startOf($timeString)->toIso8601String())
@@ -89,7 +89,7 @@ trait Counts
 
     public function countOpenTicketsByOperator(string $operatorId): int
     {
-        $incidents = Cache::remember(
+        $incidents = self::cache()->remember(
             'countOpenTicketsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             fn () => $this->getNumIncidents('operator.id=='.$operatorId.';closed==false')
@@ -100,7 +100,7 @@ trait Counts
 
     public function countActiveTicketsbyOperator(string $operatorId): int
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'countActiveIncidentsByOperatorID_'.$operatorId,
             EasySeconds::minutes(5),
             fn () => $this->getNumIncidents(
@@ -114,7 +114,7 @@ trait Counts
 
     public function countWaitingChangeActivitiesByOperatorId(string $operatorId): int
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'countWaitingChangeActivitiesByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             fn () => count($this->waitingChangeActivitiesByOperatorId($operatorId))
@@ -123,7 +123,7 @@ trait Counts
 
     public function countTicketsByStatus(string $statusName, string $operatorGroup = 'I.T. Services'): int
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'countTicketsByStatus_'.$statusName,
             EasySeconds::minutes(5),
             fn () => $this->countByProcessingStatusId($this->getProcessingStatusId($statusName), $operatorGroup)
@@ -132,7 +132,7 @@ trait Counts
 
     public function countUnassignedTickets(string $operatorGroup = 'I.T. Services'): int
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'countUnassignedITTickets'.$operatorGroup,
             EasySeconds::minutes(5),
             fn () => $this->getNumIncidents('operator.id=='.$this->getOperatorGroupId($operatorGroup).';closed==false')

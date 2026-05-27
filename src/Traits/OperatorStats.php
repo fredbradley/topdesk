@@ -20,7 +20,7 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        $data = Cache::remember(
+        $data = self::cache()->remember(
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
             fn () => collect($this->get('api/operators', [
@@ -81,7 +81,7 @@ trait OperatorStats
 
     public function getClosedIncidentsForOperator(string $operatorId): array
     {
-        return Cache::remember(
+        return self::cache()->remember(
             'resolvedIncidentsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {

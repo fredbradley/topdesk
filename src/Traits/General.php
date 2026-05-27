@@ -37,7 +37,7 @@ trait General
     {
         $cacheKey = $this->setupCacheObject('service_windows', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::hours(1), fn () => self::query()->get('api/serviceWindow/lookup/', $options)->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::hours(1), fn () => self::query()->get('api/serviceWindow/lookup/', $options)->throw()->collect());
     }
 
     public function getServiceWindow(string $id): object
@@ -59,13 +59,13 @@ trait General
     {
         $cacheKey = $this->setupCacheObject('countries', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(4), fn () => self::query()->get('api/countries')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(4), fn () => self::query()->get('api/countries')->throw()->collect());
     }
 
     public function getLanguages(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('languages', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(4), fn () => self::query()->get('api/languages')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(4), fn () => self::query()->get('api/languages')->throw()->collect());
     }
 }

@@ -20,8 +20,12 @@ use FredBradley\TOPDesk\Traits\OperatorStats;
 use FredBradley\TOPDesk\Traits\PersonManagement;
 use FredBradley\TOPDesk\Traits\Persons;
 use FredBradley\TOPDesk\Traits\Suppliers;
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -47,7 +51,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException|\Illuminate\Http\Client\ConnectionException
+     * @throws RequestException|ConnectionException
      */
     public function get(string $uri, array $query = []): array|object
     {
@@ -55,7 +59,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function post(string $uri, array $data = []): array|object
     {
@@ -63,7 +67,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function put(string $uri, array $data = []): array|object
     {
@@ -71,7 +75,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function patch(string $uri, array $data = []): array|object
     {
@@ -79,7 +83,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function delete(string $uri, array $data = []): array|object
     {
@@ -100,22 +104,31 @@ class TOPDesk
         return $response->throw()->object();
     }
 
+    public function setCache(): Repository
+    {
+        return Cache::store('file');
+    }
+    public static function cache(): Repository
+    {
+        return Cache::store('file');
+    }
+
     public function getArchiveReasonId(string $string): string
     {
         return $this->getArchiveReasons()->where('name', $string)->first()['id'];
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
-    public function getArchiveReasons(): \Illuminate\Support\Collection
+    public function getArchiveReasons(): Collection
     {
         return self::query()->get('api/archiving-reasons')->throw()->collect();
     }
 
     /**
      * Pattern: cache-busting helper used by traits.
-     * Forgets the entry so the subsequent Cache::remember() call misses and
+     * Forgets the entry so the subsequent self::cache()->remember() call misses and
      * re-populates — honouring both per-call $forgetCache and the global
      * ignore_cache config flag without duplicating the logic in every method.
      */

@@ -60,20 +60,20 @@ trait Locations
     {
         $cacheKey = $this->setupCacheObject('location_types', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/types')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/types')->throw()->collect());
     }
 
     public function getLocationStatuses(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('location_statuses', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/statuses')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/statuses')->throw()->collect());
     }
 
     public function getBuildingZones(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('building_zones', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/building_zones')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/locations/building_zones')->throw()->collect());
     }
 }

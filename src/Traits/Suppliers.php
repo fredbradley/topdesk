@@ -30,7 +30,7 @@ trait Suppliers
     {
         $cacheKey = $this->setupCacheObject('supplier_lookup', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::hours(1), fn () => self::query()->get('api/suppliers/lookup', $options)->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::hours(1), fn () => self::query()->get('api/suppliers/lookup', $options)->throw()->collect());
     }
 
     /**

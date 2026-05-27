@@ -22,7 +22,7 @@ trait Assets
         // rememberForever entries are never evicted, which causes stale IDs to survive
         // cache flushes. A 30-day TTL is effectively permanent for this data but
         // respects the $forgetCache / ignore_cache flags via setupCacheObject().
-        return Cache::remember($cacheKey, EasySeconds::days(30), function () use ($name) {
+        return self::cache()->remember($cacheKey, EasySeconds::days(30), function () use ($name) {
             $return = self::query()->get('api/assetmgmt/templates')->throw()->collect();
 
             return collect($return['dataSet'])->where('text', '=', $name)->first()['id'];
@@ -157,14 +157,14 @@ trait Assets
     {
         $cacheKey = $this->setupCacheObject('asset_statuses', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/assetStatuses')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/assetStatuses')->throw()->collect());
     }
 
     public function getCardTypes(bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('card_types', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/cardTypes')->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/cardTypes')->throw()->collect());
     }
 
     /**
@@ -174,7 +174,7 @@ trait Assets
     {
         $cacheKey = $this->setupCacheObject('asset_templates', $forgetCache);
 
-        return Cache::remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/templates', $options)->throw()->collect());
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), fn () => self::query()->get('api/assetmgmt/templates', $options)->throw()->collect());
     }
 
     // === Asset History ===
