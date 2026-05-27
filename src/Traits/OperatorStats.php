@@ -20,14 +20,15 @@ trait OperatorStats
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cache::remember(
+        $data = Cache::remember(
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
             fn () => collect($this->get('api/operators', [
                 'page_size' => 100,
                 'query' => '(operatorGroup.id=='.$operatorGroupId.')',
-            ]))
+            ]))->toArray()
         );
+        return collect($data);
     }
 
     public function openCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
