@@ -31,12 +31,11 @@ TOPdesk_app_password="" # Your application password for that username.
 ## Guide
 Our TOPdesk API implementation contains the following features:
 - Simple login using application passwords.
-- Automatic retry functionality that retries requests when connection errors or status codes >= 500 occur.
- We have experienced various instabilities with the TOPdesk API, and hopefully this minimizes these shortcomings. 
-- Direct function calls for much used api endpoints (`createIncident($params)`, `getIncidentById($id)`,
-`getListOfIncidents()`, `escalateIncidentById($id)`, `deescalateIncidentById($id)`, `getListOfDepartments()`,
-`createDepartment($params)`, `getListOfBranches()`, `createBranch($params)` among others).
-- Easy syntax for all other endpoints using `$api->request($method, $uri, $json = [], $query = [])`.
+- Response caching (5-minute default TTL) to reduce API load; cache can be busted per-call or disabled globally.
+- Direct function calls for common API endpoints (`createIncident($params)`, `getIncident($number)`,
+`getListOfIncidents()`, `escalateIncident($id, $reasonId)`, `deescalateIncident($id, $reasonId)`, `getDepartments()`,
+`createDepartment($name)`, `getBranches()`, `createBranch($data)` among others).
+- Low-level HTTP helpers (`get()`, `post()`, `put()`, `patch()`, `delete()`) for endpoints not covered by named methods.
 
 
 Now your API should be ready to use:
@@ -52,15 +51,17 @@ foreach($incidents as $incident) {
 ```
 
 Many requests have been implemented as direct functions of the API. However, not all of them have been implemented.
-For manual API requests, use the `request()` function:
+For unlisted endpoints you can call the HTTP helpers directly:
 ```php
-TOPDesk::request('GET', 'api/incidents/call_types', [
-    // Optional array to be sent as JSON body (for POST/PUT requests).
-], [
-    // Optional (search) query parameters, see API documentation for supported values.
-], [
-    // Optional parameters for the Guzzle request itself.
-    // @see http://docs.guzzlephp.org/en/stable/request-options.html
+// GET with optional query parameters
+TOPDesk::get('api/incidents/call_types', [
+    // Optional key => value query parameters
+]);
+
+// POST / PUT / PATCH with a JSON body
+TOPDesk::post('api/incidents', [
+    'callerLookup' => ['id' => $callerId],
+    'briefDescription' => 'My incident',
 ]);
 ```
 
