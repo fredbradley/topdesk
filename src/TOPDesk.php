@@ -53,7 +53,7 @@ class TOPDesk
     /**
      * @throws RequestException|ConnectionException
      */
-    public function get(string $uri, array $query = []): array|object
+    public function get(string $uri, array $query = []): mixed
     {
         return $this->process(self::query()->get($uri, $query));
     }
@@ -61,7 +61,7 @@ class TOPDesk
     /**
      * @throws RequestException
      */
-    public function post(string $uri, array $data = []): array|object
+    public function post(string $uri, array $data = []): mixed
     {
         return $this->process(self::query()->post($uri, $data));
     }
@@ -69,7 +69,7 @@ class TOPDesk
     /**
      * @throws RequestException
      */
-    public function put(string $uri, array $data = []): array|object
+    public function put(string $uri, array $data = []): mixed
     {
         return $this->process(self::query()->put($uri, $data));
     }
@@ -77,7 +77,7 @@ class TOPDesk
     /**
      * @throws RequestException|ConnectionException
      */
-    public function patch(string $uri, array $data = []): array|object
+    public function patch(string $uri, array $data = []): mixed
     {
         return $this->process(self::query()->patch($uri, $data));
     }
@@ -85,7 +85,7 @@ class TOPDesk
     /**
      * @throws RequestException|ConnectionException
      */
-    public function delete(string $uri, array $data = []): array|object
+    public function delete(string $uri, array $data = []): mixed
     {
         return $this->process(self::query()->delete($uri, $data));
     }
@@ -94,10 +94,12 @@ class TOPDesk
      * Pattern: HTTP 204 No Content carries no body; return an empty array rather
      * than calling ->object() which would return null and break callers expecting
      * an object. All other responses are thrown on error then decoded.
+     * Note: json_decode() can return any PHP type (int, string, bool, …) for
+     * valid scalar JSON, so the return type is mixed rather than array|object.
      *
      * @throws RequestException
      */
-    private function process(Response $response): array|object
+    private function process(Response $response): mixed
     {
         if ($response->noContent()) {
             return [];
