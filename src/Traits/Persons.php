@@ -40,7 +40,7 @@ trait Persons
     {
         return $this->process(
             self::query()
-                ->accept('application/x-topdesk-v2+json')
+                ->accept('application/x.topdesk-person-v2+json')
                 ->get('api/persons/'.$id)
         );
     }
