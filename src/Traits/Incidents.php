@@ -11,7 +11,6 @@ use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
 

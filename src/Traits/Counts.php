@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\EasyTime\EasySeconds;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 trait Counts

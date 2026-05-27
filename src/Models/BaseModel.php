@@ -7,7 +7,6 @@ namespace FredBradley\TOPDesk\Models;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 abstract class BaseModel

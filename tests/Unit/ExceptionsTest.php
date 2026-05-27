@@ -10,7 +10,7 @@ use FredBradley\TOPDesk\Exceptions\PersonNotFound;
 // --- PersonNotFound ---
 
 it('PersonNotFound extends RuntimeException', function () {
-    expect(new PersonNotFound('jsmith'))->toBeInstanceOf(\RuntimeException::class);
+    expect(new PersonNotFound('jsmith'))->toBeInstanceOf(RuntimeException::class);
 });
 
 it('PersonNotFound carries HTTP 404 as its code', function () {
@@ -30,7 +30,7 @@ it('PersonNotFound can be caught as RuntimeException', function () {
 
     try {
         throw new PersonNotFound('testuser');
-    } catch (\RuntimeException) {
+    } catch (RuntimeException) {
         $caught = true;
     }
 
@@ -40,7 +40,7 @@ it('PersonNotFound can be caught as RuntimeException', function () {
 // --- OperatorNotFound ---
 
 it('OperatorNotFound extends Exception', function () {
-    expect(new OperatorNotFound())->toBeInstanceOf(\Exception::class);
+    expect(new OperatorNotFound)->toBeInstanceOf(Exception::class);
 });
 
 it('OperatorNotFound accepts a custom message', function () {
@@ -52,7 +52,7 @@ it('OperatorNotFound accepts a custom message', function () {
 // --- OperatorGroupNotFound ---
 
 it('OperatorGroupNotFound extends Exception', function () {
-    expect(new OperatorGroupNotFound())->toBeInstanceOf(\Exception::class);
+    expect(new OperatorGroupNotFound)->toBeInstanceOf(Exception::class);
 });
 
 it('OperatorGroupNotFound accepts a custom message', function () {
@@ -64,7 +64,7 @@ it('OperatorGroupNotFound accepts a custom message', function () {
 // --- ConfigNotFound ---
 
 it('ConfigNotFound extends RuntimeException', function () {
-    expect(new ConfigNotFound())->toBeInstanceOf(\RuntimeException::class);
+    expect(new ConfigNotFound)->toBeInstanceOf(RuntimeException::class);
 });
 
 it('ConfigNotFound can be thrown and caught', function () {

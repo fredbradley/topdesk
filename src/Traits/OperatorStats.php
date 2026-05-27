@@ -6,7 +6,6 @@ namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\EasyTime\EasySeconds;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 trait OperatorStats
 {
@@ -28,6 +27,7 @@ trait OperatorStats
                 'query' => '(operatorGroup.id=='.$operatorGroupId.')',
             ]))->toArray()
         );
+
         return collect($data);
     }
 

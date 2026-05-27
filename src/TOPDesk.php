@@ -75,7 +75,7 @@ class TOPDesk
     }
 
     /**
-     * @throws RequestException
+     * @throws RequestException|ConnectionException
      */
     public function patch(string $uri, array $data = []): array|object
     {
@@ -83,7 +83,7 @@ class TOPDesk
     }
 
     /**
-     * @throws RequestException
+     * @throws RequestException|ConnectionException
      */
     public function delete(string $uri, array $data = []): array|object
     {
@@ -94,6 +94,7 @@ class TOPDesk
      * Pattern: HTTP 204 No Content carries no body; return an empty array rather
      * than calling ->object() which would return null and break callers expecting
      * an object. All other responses are thrown on error then decoded.
+     *
      * @throws RequestException
      */
     private function process(Response $response): array|object

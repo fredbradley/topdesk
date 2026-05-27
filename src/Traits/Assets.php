@@ -35,7 +35,7 @@ trait Assets
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function assignIncidentToAsset(string $assetID, string $incidentID): object
     {
