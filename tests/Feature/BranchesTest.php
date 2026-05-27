@@ -89,3 +89,37 @@ it('returns branch attachments as a Collection', function () {
 
     expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(1);
 });
+
+it('unarchives a branch via PATCH to api/branches/id/{id}/unarchive', function () {
+    Http::fake(['*api/branches/id/*/unarchive*' => Http::response(['id' => 'br-1', 'name' => 'London HQ'])]);
+
+    $result = TOPDesk::unarchiveBranch('br-1');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('br-1');
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/branches/id/br-1/unarchive')
+    );
+});
+
+it('returns branch lookup results as a Collection', function () {
+    Http::fake(['*api/branches/lookup*' => Http::response([
+        ['id' => 'br-1', 'name' => 'London HQ'],
+        ['id' => 'br-2', 'name' => 'Manchester'],
+    ])]);
+
+    $result = TOPDesk::getBranchLookup(['name' => 'London']);
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/branches/lookup'));
+});
+
+it('deletes a branch attachment via DELETE', function () {
+    Http::fake(['*api/branches/id/br-1/attachments/att-1*' => Http::response('', 204)]);
+
+    $result = TOPDesk::deleteBranchAttachment('br-1', 'att-1');
+
+    expect($result)->toBe([]);
+    Http::assertSent(fn ($r) => $r->method() === 'DELETE'
+        && str_contains($r->url(), 'api/branches/id/br-1/attachments/att-1')
+    );
+});

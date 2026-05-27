@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Carbon\Carbon;
 use FredBradley\TOPDesk\Exceptions\OperatorGroupNotFound;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
 use FredBradley\TOPDesk\Facades\TOPDesk;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
@@ -137,6 +139,18 @@ it('throws OperatorNotFound when the operator lookup returns a null body', funct
         ->toThrow(OperatorNotFound::class);
 });
 
+it('returns a Collection when getOperatorByUsername finds multiple matches', function () {
+    Http::fake(['*api/operators*' => Http::response([
+        ['id' => 'op-1', 'networkLoginName' => 'jsmith'],
+        ['id' => 'op-2', 'networkLoginName' => 'jsmith2'],
+    ])]);
+
+    $result = TOPDesk::getOperatorByUsername('jsmith');
+
+    // count > 1 returns the collection directly
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+});
+
 it('counts incidents matching a FIQL query', function () {
     Http::fake(['*api/incidents*' => Http::response([
         ['id' => 'inc-1'],
@@ -165,4 +179,118 @@ it('resolves an archive reason id by name', function () {
     ])]);
 
     expect(TOPDesk::getArchiveReasonId('Duplicate'))->toBe('reason-dup');
+});
+
+it('getIncidentbyNumber (deprecated) delegates to getIncident by number', function () {
+    Http::fake(['*api/incidents/number/*' => Http::response(['id' => 'inc-abc', 'number' => 'I-2024-001'])]);
+
+    $result = TOPDesk::getIncidentbyNumber('I-2024-001');
+
+    expect($result)->toBeObject()->and($result->number)->toBe('I-2024-001');
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/incidents/number/I-2024-001'));
+});
+
+it('returns a processing status object by name', function () {
+    Http::fake(['*api/incidents/statuses*' => Http::response([
+        ['id' => 'status-open', 'name' => 'Open'],
+        ['id' => 'status-closed', 'name' => 'Closed'],
+    ])]);
+
+    $status = TOPDesk::getProcessingStatus('Open');
+
+    expect($status)->toBeArray()->toHaveKey('id');
+    expect($status['id'])->toBe('status-open');
+});
+
+it('throws an exception when a processing status name is not found', function () {
+    Http::fake(['*api/incidents/statuses*' => Http::response([
+        ['id' => 'status-open', 'name' => 'Open'],
+    ])]);
+
+    expect(fn () => TOPDesk::getProcessingStatus('Nonexistent'))
+        ->toThrow(Exception::class, 'Status Not Found');
+});
+
+it('returns open incidents for an operator group as a Collection (default Open status)', function () {
+    Http::fake([
+        '*api/incidents/statuses*' => Http::response([
+            ['id' => 'status-closed', 'name' => 'Closed'],
+        ]),
+        '*api/incidents*' => Http::response([
+            ['id' => 'inc-1', 'creationDate' => now()->toIso8601String(), 'targetDate' => null],
+            ['id' => 'inc-2', 'creationDate' => now()->toIso8601String(), 'targetDate' => null],
+        ]),
+    ]);
+
+    $result = TOPDesk::getOpenIncidentsByOperatorGroupId('grp-uuid');
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/incidents')
+        && str_contains($r->url(), 'grp-uuid')
+    );
+});
+
+it('parses targetDate as a Carbon instance when it is not null', function () {
+    Http::fake([
+        '*api/incidents/statuses*' => Http::response([['id' => 'status-closed', 'name' => 'Closed']]),
+        '*api/incidents*' => Http::response([
+            [
+                'id' => 'inc-1',
+                'creationDate' => now()->toIso8601String(),
+                'targetDate' => now()->addDays(3)->toIso8601String(),
+            ],
+        ]),
+    ]);
+
+    $result = TOPDesk::getOpenIncidentsByOperatorGroupId('grp-uuid');
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(1);
+    expect($result->first()->targetDate)->toBeInstanceOf(Carbon::class);
+});
+
+it('re-throws RequestException from getOpenIncidentsByOperatorGroupId when the API returns an error', function () {
+    Http::fake([
+        '*api/incidents/statuses*' => Http::response([['id' => 'status-closed', 'name' => 'Closed']]),
+        '*api/incidents*' => Http::response(['error' => 'Server Error'], 500),
+    ]);
+
+    expect(fn () => TOPDesk::getOpenIncidentsByOperatorGroupId('grp-uuid'))
+        ->toThrow(RequestException::class);
+});
+
+it('returns open incidents for an operator group with a specific processing status', function () {
+    Http::fake([
+        '*api/incidents/statuses*' => Http::response([
+            ['id' => 'status-logged', 'name' => 'Logged'],
+        ]),
+        '*api/incidents*' => Http::response([
+            ['id' => 'inc-1', 'creationDate' => now()->toIso8601String(), 'targetDate' => null],
+        ]),
+    ]);
+
+    $result = TOPDesk::getOpenIncidentsByOperatorGroupId('grp-uuid', 'Logged');
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(1);
+});
+
+it('deprecatedgetOpenIncidentsByOperatorGroupId returns incidents with null processing status', function () {
+    Http::fake(['*api/incidents*' => Http::response([['id' => 'inc-1'], ['id' => 'inc-2']])]);
+
+    $result = TOPDesk::deprecatedgetOpenIncidentsByOperatorGroupId('grp-uuid');
+
+    expect($result)->toBeArray();
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/incidents')
+        && str_contains($r->url(), 'closed%3D%3Dfalse') || str_contains($r->url(), 'closed==false')
+    );
+});
+
+it('deprecatedgetOpenIncidentsByOperatorGroupId filters by processing status name', function () {
+    Http::fake(['*api/incidents*' => Http::response([['id' => 'inc-1']])]);
+
+    $result = TOPDesk::deprecatedgetOpenIncidentsByOperatorGroupId('grp-uuid', 'Logged', ['id', 'number']);
+
+    expect($result)->toBeArray();
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/incidents')
+        && str_contains($r->url(), 'Logged')
+    );
 });

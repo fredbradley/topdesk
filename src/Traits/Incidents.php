@@ -47,7 +47,7 @@ trait Incidents
                     return $ticket;
                 });
             } catch (RequestException $exception) {
-                dd($exception->getMessage());
+                throw $exception;
             }
         });
     }

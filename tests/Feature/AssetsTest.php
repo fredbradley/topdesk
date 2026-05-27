@@ -156,3 +156,89 @@ it('returns asset history via GET', function () {
 
     Http::assertSent(fn ($r) => str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/history/pastItems'));
 });
+
+it('returns asset current items via GET to history/currentItems', function () {
+    Http::fake(['*history/currentItems*' => Http::response([['id' => 'item-1', 'name' => 'LAPTOP-001']])]);
+
+    TOPDesk::getAssetCurrentItems('asset-uuid');
+
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/history/currentItems'));
+});
+
+it('assigns an incident to an asset via PUT to api/assetmgmt/assets/{id}/assignments', function () {
+    Http::fake(['*assignments*' => Http::response(['id' => 'link-new'])]);
+
+    $result = TOPDesk::assignIncidentToAsset('asset-uuid', 'inc-uuid');
+
+    expect($result)->toBeObject();
+    Http::assertSent(fn ($r) => $r->method() === 'PUT'
+        && str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/assignments')
+    );
+});
+
+it('links an incident to an asset via POST to api/assetmgmt/assets/linkedTask', function () {
+    Http::fake(['*assetmgmt/assets/linkedTask*' => Http::response(['status' => 'ok'])]);
+
+    $result = TOPDesk::linkIncidentToAsset('asset-uuid', 'inc-uuid');
+
+    expect($result)->toBeObject();
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && str_contains($r->url(), 'api/assetmgmt/assets/linkedTask')
+    );
+});
+
+it('copies an asset via POST to api/assetmgmt/assets/{id}/copy', function () {
+    Http::fake(['*assetmgmt/assets/asset-uuid/copy*' => Http::response(['id' => 'asset-copy'])]);
+
+    $result = TOPDesk::copyAsset('asset-uuid');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('asset-copy');
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && str_contains($r->url(), 'api/assetmgmt/assets/asset-uuid/copy')
+    );
+});
+
+it('returns asset links via GET to api/assetmgmt/assetLinks', function () {
+    Http::fake(['*assetmgmt/assetLinks*' => Http::response([['id' => 'link-1', 'sourceId' => 'asset-a']])]);
+
+    $result = TOPDesk::getAssetLinks(['sourceId' => 'asset-a']);
+
+    Http::assertSent(fn ($r) => $r->method() === 'GET'
+        && str_contains($r->url(), 'api/assetmgmt/assetLinks')
+    );
+});
+
+it('creates an asset link via POST to api/assetmgmt/assetLinks', function () {
+    Http::fake(['*assetmgmt/assetLinks*' => Http::response(['id' => 'new-link'])]);
+
+    $result = TOPDesk::createAssetLink(['sourceId' => 'asset-a', 'targetId' => 'asset-b', 'capabilityId' => 'cap-1']);
+
+    expect($result)->toBeObject()->and($result->id)->toBe('new-link');
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && str_contains($r->url(), 'api/assetmgmt/assetLinks')
+    );
+});
+
+it('deletes an asset link via DELETE', function () {
+    Http::fake(['*assetmgmt/assetLinks/link-1*' => Http::response('', 204)]);
+
+    $result = TOPDesk::deleteAssetLink('link-1');
+
+    expect($result)->toBe([]);
+    Http::assertSent(fn ($r) => $r->method() === 'DELETE'
+        && str_contains($r->url(), 'api/assetmgmt/assetLinks/link-1')
+    );
+});
+
+it('returns asset templates as a cached Collection', function () {
+    Http::fake(['*assetmgmt/templates*' => Http::response([
+        'dataSet' => [
+            ['id' => 'tmpl-1', 'text' => 'Laptop'],
+            ['id' => 'tmpl-2', 'text' => 'Monitor'],
+        ],
+    ])]);
+
+    $result = TOPDesk::getAssetTemplates();
+
+    expect($result)->toBeInstanceOf(Collection::class);
+});

@@ -117,3 +117,69 @@ it('returns operators in a group as a Collection', function () {
 
     expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(1);
 });
+
+it('unarchives an operator via PATCH to api/operators/id/{id}/unarchive', function () {
+    Http::fake(['*api/operators/id/op-uuid/unarchive*' => Http::response(['id' => 'op-uuid'])]);
+
+    TOPDesk::unarchiveOperator('op-uuid');
+
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/operators/id/op-uuid/unarchive')
+    );
+});
+
+it('returns operator lookup results as a Collection', function () {
+    Http::fake(['*api/operators/lookup*' => Http::response([
+        ['id' => 'op-1', 'networkLoginName' => 'jsmith'],
+        ['id' => 'op-2', 'networkLoginName' => 'bjones'],
+    ])]);
+
+    $result = TOPDesk::getOperatorLookup(['name' => 'smith']);
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/operators/lookup'));
+});
+
+it('updates an operator group via PATCH to api/operatorgroups/id/{id}', function () {
+    Http::fake(['*api/operatorgroups/id/grp-1*' => Http::response(['id' => 'grp-1', 'groupName' => 'Updated Group'])]);
+
+    $result = TOPDesk::updateOperatorGroup('grp-1', ['groupName' => 'Updated Group']);
+
+    expect($result)->toBeObject()->and($result->id)->toBe('grp-1');
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/operatorgroups/id/grp-1')
+    );
+});
+
+it('archives an operator group via PATCH to api/operatorgroups/id/{id}/archive', function () {
+    Http::fake(['*api/operatorgroups/id/grp-1/archive*' => Http::response('', 204)]);
+
+    $result = TOPDesk::archiveOperatorGroup('grp-1');
+
+    expect($result)->toBe([]);
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/operatorgroups/id/grp-1/archive')
+    );
+});
+
+it('unarchives an operator group via PATCH to api/operatorgroups/id/{id}/unarchive', function () {
+    Http::fake(['*api/operatorgroups/id/grp-1/unarchive*' => Http::response(['id' => 'grp-1'])]);
+
+    $result = TOPDesk::unarchiveOperatorGroup('grp-1');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('grp-1');
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/operatorgroups/id/grp-1/unarchive')
+    );
+});
+
+it('returns operator group lookup results as a Collection', function () {
+    Http::fake(['*api/operatorgroups/lookup*' => Http::response([
+        'results' => [['id' => 'grp-1', 'name' => 'I.T. Services']],
+    ])]);
+
+    $result = TOPDesk::getOperatorGroupLookup(['name' => 'I.T.']);
+
+    expect($result)->toBeInstanceOf(Collection::class);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/operatorgroups/lookup'));
+});

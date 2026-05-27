@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace FredBradley\TOPDesk\Traits;
 
 use FredBradley\EasyTime\EasySeconds;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 
 trait Suppliers
 {
     /**
      * @param  array  $query  Keys: start, page_size, query (FIQL)
+     *
+     * @throws ConnectionException|RequestException
      */
     public function getSuppliers(array $query = []): Collection
     {

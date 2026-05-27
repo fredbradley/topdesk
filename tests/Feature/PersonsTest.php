@@ -132,3 +132,59 @@ it('returns groups that a person belongs to as a Collection', function () {
 
     expect($result)->toBeInstanceOf(Collection::class);
 });
+
+it('returns person lookup results as a Collection', function () {
+    Http::fake(['*api/persons/lookup*' => Http::response([
+        ['id' => 'person-1', 'surName' => 'Smith'],
+        ['id' => 'person-2', 'surName' => 'Jones'],
+    ])]);
+
+    $result = TOPDesk::getPersonLookup(['name' => 'Smith']);
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/persons/lookup'));
+});
+
+it('updates a person group via PATCH to api/persongroups/{id}', function () {
+    Http::fake(['*api/persongroups/pg-1*' => Http::response(['id' => 'pg-1', 'groupName' => 'Updated Group'])]);
+
+    $result = TOPDesk::updatePersonGroup('pg-1', ['groupName' => 'Updated Group']);
+
+    expect($result)->toBeObject()->and($result->id)->toBe('pg-1');
+    Http::assertSent(fn ($r) => $r->method() === 'PATCH'
+        && str_contains($r->url(), 'api/persongroups/pg-1')
+    );
+});
+
+it('archives a person group via POST to api/persongroups/{id}/archive', function () {
+    Http::fake(['*api/persongroups/pg-1/archive*' => Http::response('', 204)]);
+
+    $result = TOPDesk::archivePersonGroup('pg-1');
+
+    expect($result)->toBe([]);
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && str_contains($r->url(), 'api/persongroups/pg-1/archive')
+    );
+});
+
+it('unarchives a person group via POST to api/persongroups/id/{id}/unarchive', function () {
+    Http::fake(['*api/persongroups/id/pg-1/unarchive*' => Http::response(['id' => 'pg-1'])]);
+
+    $result = TOPDesk::unarchivePersonGroup('pg-1');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('pg-1');
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && str_contains($r->url(), 'api/persongroups/id/pg-1/unarchive')
+    );
+});
+
+it('returns person group lookup results as a Collection', function () {
+    Http::fake(['*api/persongroups/lookup*' => Http::response([
+        ['id' => 'pg-1', 'name' => 'Finance'],
+    ])]);
+
+    $result = TOPDesk::getPersonGroupLookup(['name' => 'Finance']);
+
+    expect($result)->toBeInstanceOf(Collection::class)->toHaveCount(1);
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/persongroups/lookup'));
+});

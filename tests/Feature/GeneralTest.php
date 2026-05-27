@@ -131,3 +131,45 @@ it('creates a location via POST to api/locations', function () {
     expect($result)->toBeObject()->and($result->id)->toBe('loc-new');
     Http::assertSent(fn ($r) => $r->method() === 'POST' && str_ends_with(parse_url($r->url(), PHP_URL_PATH), '/api/locations'));
 });
+
+it('returns service windows as a cached Collection', function () {
+    Http::fake(['*api/serviceWindow/lookup*' => Http::response([
+        ['id' => 'sw-1', 'name' => 'Standard Hours'],
+        ['id' => 'sw-2', 'name' => '24/7'],
+    ])]);
+
+    $first = TOPDesk::getServiceWindows();
+    $second = TOPDesk::getServiceWindows();
+
+    expect($first)->toBeInstanceOf(Collection::class)->toHaveCount(2);
+    Http::assertSentCount(1); // cached after first call
+});
+
+it('fetches a single service window by id', function () {
+    Http::fake(['*api/serviceWindow/lookup/*' => Http::response(['id' => 'sw-1', 'name' => 'Standard Hours'])]);
+
+    $result = TOPDesk::getServiceWindow('sw-1');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('sw-1');
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/serviceWindow/lookup/sw-1'));
+});
+
+it('fetches an email by id via GET api/emails/id/{id}', function () {
+    Http::fake(['*api/emails/id/*' => Http::response(['id' => 'email-uuid', 'subject' => 'Test Email'])]);
+
+    $result = TOPDesk::getEmail('email-uuid');
+
+    expect($result)->toBeObject()->and($result->id)->toBe('email-uuid');
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'api/emails/id/email-uuid'));
+});
+
+it('deletes an email via DELETE to api/emails/id/{id}', function () {
+    Http::fake(['*api/emails/id/*' => Http::response('', 204)]);
+
+    $result = TOPDesk::deleteEmail('email-uuid');
+
+    expect($result)->toBe([]);
+    Http::assertSent(fn ($r) => $r->method() === 'DELETE'
+        && str_contains($r->url(), 'api/emails/id/email-uuid')
+    );
+});

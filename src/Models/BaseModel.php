@@ -63,7 +63,7 @@ abstract class BaseModel
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.$variableKey.$variableValue),
             forgetCache: $forgetCache);
 
-        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
+        return TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
             $result = TOPDesk::query()->get('api/'.self::$endpoint.'/', [
                 'query' => $variableKey.'=='.$variableValue,
             ])->throw()->collect()->mapInto(self::$model);
@@ -78,7 +78,7 @@ abstract class BaseModel
 
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.'id'.$id), forgetCache: $forgetCache);
 
-        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
+        return TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
             // Some APIs use /{id} directly; others use /id/{id}
             $noIdPrefix = [Asset::class, PersonGroup::class, Supplier::class];
             $endpoint = in_array(self::$model, $noIdPrefix)

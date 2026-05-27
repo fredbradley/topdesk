@@ -10,6 +10,7 @@ use FredBradley\TOPDesk\Traits\Branches;
 use FredBradley\TOPDesk\Traits\Changes;
 use FredBradley\TOPDesk\Traits\Counts;
 use FredBradley\TOPDesk\Traits\Departments;
+use FredBradley\TOPDesk\Traits\DeprecatedMethods;
 use FredBradley\TOPDesk\Traits\General;
 use FredBradley\TOPDesk\Traits\IncidentActions;
 use FredBradley\TOPDesk\Traits\IncidentLookups;
@@ -31,7 +32,7 @@ use Illuminate\Support\Facades\Http;
 
 class TOPDesk
 {
-    use Assets, Branches, Changes, Counts, Departments, General,
+    use Assets, Branches, Changes, Counts, Departments, DeprecatedMethods, General,
         IncidentActions, IncidentLookups, Incidents, Locations,
         OperatorManagement, OperatorStats, PersonManagement, Persons, Suppliers;
 
@@ -154,10 +155,5 @@ class TOPDesk
                 throw new ConfigNotFound("Config value 'topdesk.{$key}' must not be an empty string.");
             }
         }
-    }
-
-    private function endpointWithTrailingSlash(): string
-    {
-        return rtrim(config('topdesk.endpoint'), '/\\').'/';
     }
 }

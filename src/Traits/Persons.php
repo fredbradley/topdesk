@@ -12,7 +12,7 @@ trait Persons
 {
     /**
      * @throws PersonNotFound
-     * @throws RequestException
+     * @throws RequestException|ConnectionException
      */
     public function getPersonByUsername(string $username): object
     {
