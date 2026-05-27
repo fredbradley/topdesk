@@ -8,9 +8,11 @@ use Carbon\Carbon;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorGroupNotFound;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
 
 /**
@@ -54,7 +56,7 @@ trait Incidents
     /**
      * @param  array  $options  Keys: start, page_size, query (FIQL), fields, sort, etc.
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException|ConnectionException
      */
     public function getListOfIncidents(array $options = []): array|object
     {
@@ -67,7 +69,7 @@ trait Incidents
      *                       priority{id}, impact{id}, urgency{id}, duration{id}, targetDate,
      *                       onHold, closed, closedDate, closureCode{id}, costs, etc.
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function updateIncident(string $id, array $data): object
     {
@@ -75,7 +77,7 @@ trait Incidents
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function updateIncidentByNumber(string $number, array $data): object
     {
@@ -83,9 +85,9 @@ trait Incidents
     }
 
     /**
-     * @deprecated use getIncident() instead
+     * @throws RequestException|ConnectionException
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @deprecated use getIncident() instead
      */
     public function getIncidentbyNumber(string $topdeskIncidentNumber): object
     {
@@ -95,7 +97,7 @@ trait Incidents
     /**
      * @param  string  $topdeskIncidentNumber  either the UNID or Ticket Number
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException|ConnectionException
      */
     public function getIncident(string $topdeskIncidentNumber): object
     {
@@ -129,7 +131,7 @@ trait Incidents
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function createIncident(array $options): object
     {
@@ -216,7 +218,7 @@ trait Incidents
     /**
      * @return \stdClass
      *
-     * @throws \Illuminate\Support\ItemNotFoundException
+     * @throws ItemNotFoundException
      */
     public function getProcessingStatus(string $name, bool $forgetCache = false): array
     {

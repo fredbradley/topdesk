@@ -47,7 +47,7 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws \Illuminate\Http\Client\RequestException|\Illuminate\Http\Client\ConnectionException
      */
     public function get(string $uri, array $query = []): array|object
     {
