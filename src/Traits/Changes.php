@@ -1,80 +1,81 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Traits;
 
-use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+use Illuminate\Support\Collection;
 
 trait Changes
 {
-    public function allOpenChangeActivities(): array
+    /*
+     * Pattern: return Collection instead of array.
+     * The TOPdesk API wraps paginated results in a {results: [...]} envelope.
+     * Wrapping in collect() gives callers first(), filter(), map(), etc. for free
+     * and makes the return type explicit rather than leaking the API's envelope shape.
+     */
+
+    public function allOpenChangeActivities(): Collection
     {
-        return Cacher::remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
-            return $this->get('api/operatorChangeActivities', [
+        return self::cache()->remember('operatorChangeActivites', EasySeconds::minutes(10), function () {
+            return collect($this->get('api/operatorChangeActivities', [
                 'open' => 'true',
                 'sort' => 'plannedFinalDate',
                 'blocked' => 'false',
                 'archived' => 'false',
-            ])->results;
+            ])->results ?? []);
         });
     }
 
-    public function unassignedWaitingChangeActivities(string $operatorGroupName = 'I.T. Services'): array
+    public function unassignedWaitingChangeActivities(string $operatorGroupName = 'I.T. Services'): Collection
     {
         $operatorId = $this->getOperatorGroupId($operatorGroupName);
 
-        return Cacher::remember(
+        return self::cache()->remember(
             'unassignedWaitingChangeActivities_'.$operatorId,
             EasySeconds::minutes(10),
-            function () use ($operatorId) {
-                return $this->get('api/operatorChangeActivities', [
-                    'open' => 'true',
-                    'sort' => 'plannedFinalDate',
-                    'blocked' => 'false',
-                    'archived' => 'false',
-                    'operator' => $operatorId,
-                ])->results;
-            }
+            fn () => collect($this->get('api/operatorChangeActivities', [
+                'open' => 'true',
+                'sort' => 'plannedFinalDate',
+                'blocked' => 'false',
+                'archived' => 'false',
+                'operator' => $operatorId,
+            ])->results ?? [])
         );
     }
 
-    public function waitingChangeActivitiesByUsername(string $username): array
+    public function waitingChangeActivitiesByUsername(string $username): Collection
     {
-        $operatorId = $this->getOperatorByUsername($username)->id;
-
-        return $this->waitingChangeActivitiesByOperatorId($operatorId);
+        return $this->waitingChangeActivitiesByOperatorId($this->getOperatorByUsername($username)->id);
     }
 
-    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): array
+    public function resolvedChangeActivitiesByOperatorIdByTime(string $operatorId, string $timeString = 'Week'): Collection
     {
-        return Cacher::remember(
+        return self::cache()->remember(
             'resolvedChangeActivitesByOperatorAndTime_'.$operatorId.'_'.$timeString,
             EasySeconds::hours(1),
-            function () use ($operatorId, $timeString) {
-                return $this->get('api/operatorChangeActivities', [
-                    'open' => 'false',
-                    'operator' => $operatorId,
-                    'pageSize' => 1000,
-                    'finalDateAfter' => now()->startOf($timeString)->format('Y-m-d'),
-                ])->results;
-            }
+            fn () => collect($this->get('api/operatorChangeActivities', [
+                'open' => 'false',
+                'operator' => $operatorId,
+                'pageSize' => 1000,
+                'finalDateAfter' => now()->startOf($timeString)->format('Y-m-d'),
+            ])->results ?? [])
         );
     }
 
-    public function waitingChangeActivitiesByOperatorId(string $operatorId): array
+    public function waitingChangeActivitiesByOperatorId(string $operatorId): Collection
     {
-        return Cacher::remember(
+        return self::cache()->remember(
             'waitingChangeActivitiesByOperatorId_'.$operatorId,
             EasySeconds::hours(1),
-            function () use ($operatorId) {
-                return $this->get('api/operatorChangeActivities', [
-                    'open' => 'true',
-                    'sort' => 'plannedFinalDate',
-                    'blocked' => 'false',
-                    'archived' => 'false',
-                    'operator' => $operatorId,
-                ])->results;
-            }
+            fn () => collect($this->get('api/operatorChangeActivities', [
+                'open' => 'true',
+                'sort' => 'plannedFinalDate',
+                'blocked' => 'false',
+                'archived' => 'false',
+                'operator' => $operatorId,
+            ])->results ?? [])
         );
     }
 }

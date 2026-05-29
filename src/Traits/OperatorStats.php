@@ -1,81 +1,74 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Traits;
 
-use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
+use Illuminate\Support\Collection;
 
-/**
- * Trait OperatorStats.
- */
 trait OperatorStats
 {
-    public function getOperatorsByOperatorGroup(string $name): array
+    /*
+     * Pattern: return Collection instead of a plain array from API calls.
+     * Collection gives callers chainable higher-order operations (filter, map,
+     * pluck, etc.) without forcing them to write their own foreach loops.
+     */
+
+    public function getOperatorsByOperatorGroup(string $name): Collection
     {
         $operatorGroupId = $this->getOperatorGroupId($name);
 
-        return Cacher::remember(
+        $data = self::cache()->remember(
             'get_operators_'.$operatorGroupId,
             EasySeconds::weeks(1),
-            function () use ($operatorGroupId) {
-                return $this->get(
-                    'api/operators',
-                    [
-                        'page_size' => 100,
-                        'query' => '(operatorGroup.id=='.$operatorGroupId.')',
-                    ]
-                );
-            }
+            fn () => collect($this->get('api/operators', [
+                'page_size' => 100,
+                'query' => '(operatorGroup.id=='.$operatorGroupId.')',
+            ]))->toArray()
         );
+
+        return collect($data);
     }
 
     public function openCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
-        $operators = $this->getOperatorsByOperatorGroup($name);
-
-        $results = [];
-        foreach ($operators as $operator) {
-            if (! in_array($operator->networkLoginName, $ignoreUsernames)) {
-                $results[$operator->networkLoginName] = $this->countOpenTicketsByOperator($operator->id);
-            }
-        }
-
-        return $results;
+        return $this->getOperatorsByOperatorGroup($name)
+            ->reject(fn ($operator) => in_array($operator->networkLoginName, $ignoreUsernames))
+            ->mapWithKeys(fn ($operator) => [$operator->networkLoginName => $this->countOpenTicketsByOperator($operator->id)])
+            ->all();
     }
 
     public function activeCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
-        $operators = $this->getOperatorsByOperatorGroup($name);
-        $results = [];
-        foreach ($operators as $operator) {
-            if (! in_array($operator['networkLoginName'], $ignoreUsernames)) {
-                $results[$operator['networkLoginName']] = $this->countActiveTicketsByOperator($operator['id']);
-            }
-        }
-
-        return $results;
+        /*
+         * Pattern: consistent property access on stdClass objects returned by
+         * the HTTP layer. Previously this method used array access ($operator['id'])
+         * while the surrounding methods used property access ($operator->id) on the
+         * same objects — now unified to property access throughout.
+         */
+        return $this->getOperatorsByOperatorGroup($name)
+            ->reject(fn ($operator) => in_array($operator->networkLoginName, $ignoreUsernames))
+            ->mapWithKeys(fn ($operator) => [$operator->networkLoginName => $this->countActiveTicketsByOperator($operator->id)])
+            ->all();
     }
 
     /**
      * @deprecated Use closedTicketCountsForOperatorGroup
      */
-    public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsername = []): array
+    public function resolveCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
-        return $this->closedTicketCountsForOperatorGroup($name, $ignoreUsername);
+        return $this->closedTicketCountsForOperatorGroup($name, $ignoreUsernames);
     }
 
     public function closedTicketCountsForOperatorGroup(string $name = 'I.T. Services', array $ignoreUsernames = []): array
     {
-        $operators = $this->getOperatorsByOperatorGroup($name);
-        $results = [];
+        $lowerIgnore = array_map('strtolower', $ignoreUsernames);
 
-        foreach ($operators as $operator) {
-            if (! in_array(strtolower($operator->networkLoginName), array_map('strtolower', $ignoreUsernames))) {
-                $results[$operator->networkLoginName] = $this->getClosedIncidentsForOperator($operator->id); // changed method to getResolvedIncidentsForOperator to as not to include change requests, which we know longer have access to
-            }
-        }
-
-        return $results;
+        return $this->getOperatorsByOperatorGroup($name)
+            ->reject(fn ($operator) => in_array(strtolower($operator->networkLoginName), $lowerIgnore))
+            ->mapWithKeys(fn ($operator) => [$operator->networkLoginName => $this->getClosedIncidentsForOperator($operator->id)])
+            ->all();
     }
 
     /**
@@ -88,7 +81,7 @@ trait OperatorStats
 
     public function getClosedIncidentsForOperator(string $operatorId): array
     {
-        return Cacher::remember(
+        return self::cache()->remember(
             'resolvedIncidentsByOperator_'.$operatorId,
             EasySeconds::minutes(5),
             function () use ($operatorId) {
@@ -109,24 +102,10 @@ trait OperatorStats
     }
 
     /**
-     * Is the sum of Incidents and Change Activities...
-     *
-     *
-     * @deprecated
+     * @deprecated Use getClosedIncidentsForOperator
      */
     public function getResolvedTicketsForOperator(string $operatorId): array
     {
         return $this->getClosedIncidentsForOperator($operatorId);
-    }
-
-    private function sumTwoArrays(array $arrayOne, array $arrayTwo): array
-    {
-        $sums = [];
-
-        foreach (array_keys($arrayOne + $arrayTwo) as $total) {
-            $sums[$total] = (isset($arrayOne[$total]) ? $arrayOne[$total] : 0) + (isset($arrayTwo) ? $arrayTwo[$total] : 0);
-        }
-
-        return $sums;
     }
 }

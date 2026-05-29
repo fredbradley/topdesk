@@ -1,129 +1,117 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk;
 
-use FredBradley\Cacher\Cacher;
 use FredBradley\TOPDesk\Exceptions\ConfigNotFound;
 use FredBradley\TOPDesk\Traits\Assets;
+use FredBradley\TOPDesk\Traits\Branches;
 use FredBradley\TOPDesk\Traits\Changes;
 use FredBradley\TOPDesk\Traits\Counts;
+use FredBradley\TOPDesk\Traits\Departments;
+use FredBradley\TOPDesk\Traits\DeprecatedMethods;
+use FredBradley\TOPDesk\Traits\General;
+use FredBradley\TOPDesk\Traits\IncidentActions;
+use FredBradley\TOPDesk\Traits\IncidentLookups;
 use FredBradley\TOPDesk\Traits\Incidents;
+use FredBradley\TOPDesk\Traits\Locations;
+use FredBradley\TOPDesk\Traits\OperatorManagement;
 use FredBradley\TOPDesk\Traits\OperatorStats;
+use FredBradley\TOPDesk\Traits\PersonManagement;
 use FredBradley\TOPDesk\Traits\Persons;
-use GuzzleHttp\Client;
+use FredBradley\TOPDesk\Traits\Suppliers;
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class TOPDesk
 {
-    use Assets, Changes, Counts, Incidents, OperatorStats, Persons;
+    use Assets, Branches, Changes, Counts, Departments, DeprecatedMethods, General,
+        IncidentActions, IncidentLookups, Incidents, Locations,
+        OperatorManagement, OperatorStats, PersonManagement, Persons, Suppliers;
 
-    private $client;
+    public function __construct()
+    {
+        $this->checkConfig();
+    }
 
+    /**
+     * Pattern: single authenticated entry-point for all HTTP calls.
+     * The `topdeskAuth` macro (registered in TOPDeskServiceProvider) centralises
+     * base-URL, credentials, and Accept header so no other code needs to know them.
+     */
     public static function query(): PendingRequest
     {
         return Http::topdeskAuth();
     }
 
     /**
-     * TOPDesk constructor.
+     * @throws RequestException|ConnectionException
+     */
+    public function get(string $uri, array $query = []): mixed
+    {
+        return $this->process(self::query()->get($uri, $query));
+    }
+
+    /**
+     * @throws RequestException
+     */
+    public function post(string $uri, array $data = []): mixed
+    {
+        return $this->process(self::query()->post($uri, $data));
+    }
+
+    /**
+     * @throws RequestException
+     */
+    public function put(string $uri, array $data = []): mixed
+    {
+        return $this->process(self::query()->put($uri, $data));
+    }
+
+    /**
+     * @throws RequestException|ConnectionException
+     */
+    public function patch(string $uri, array $data = []): mixed
+    {
+        return $this->process(self::query()->patch($uri, $data));
+    }
+
+    /**
+     * @throws RequestException|ConnectionException
+     */
+    public function delete(string $uri, array $data = []): mixed
+    {
+        return $this->process(self::query()->delete($uri, $data));
+    }
+
+    /**
+     * Pattern: HTTP 204 No Content carries no body; return an empty array rather
+     * than calling ->object() which would return null and break callers expecting
+     * an object. All other responses are thrown on error then decoded.
+     * Note: json_decode() can return any PHP type (int, string, bool, …) for
+     * valid scalar JSON, so the return type is mixed rather than array|object.
      *
-     * @param  string  $endpoint
-     * @param  int  $retries
-     * @param  array  $guzzleOptions
+     * @throws RequestException
      */
-    public function __construct()
+    private function process(Response $response): mixed
     {
-        $this->client = new Client([
-            'base_uri' => $this->endpointWithTrailingSlash(),
-            'auth' => [
-                config('topdesk.application_username'),
-                config('topdesk.application_password'),
-            ],
-        ]);
-        $this->checkConfig();
-    }
-
-    /**
-     * Let the User know if they have forgotten to update their .env file.
-     *
-     * @throws ConfigNotFound
-     */
-    private function checkConfig()
-    {
-        foreach (config('topdesk') as $key => $config) {
-            if ($config === null) {
-                throw new ConfigNotFound("You need to set the config for env('topdesk.".$key."')", 400);
-            }
-            if ($config === '') {
-                throw new ConfigNotFound(
-                    "It seems unlikely that the env('topdesk.".$key."') should be an empty string!? I don't work with people like that!",
-                    400
-                );
-            }
-        }
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function delete(string $uri, array $data = []): array|object
-    {
-        return $this->process($this->setupResponse()->delete($uri, $data));
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function patch(string $uri, array $data = []): array|object
-    {
-        return $this->process($this->setupResponse()->patch($uri, $data));
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function put(string $uri, array $data = []): array|object
-    {
-        return $this->process($this->setupResponse()->put($uri, $data));
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function post(string $uri, array $data = []): array|object
-    {
-        return $this->process($this->setupResponse()->post($uri, $data));
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    public function get(string $uri, array $query = []): array|object
-    {
-        return $this->process($this->setupResponse()->get($uri, $query));
-    }
-
-    /**
-     * @throws \Illuminate\Http\Client\RequestException
-     */
-    private function process(Response $response): array|object
-    {
-        if ($response->status() === \Illuminate\Http\Response::HTTP_NO_CONTENT) {
+        if ($response->noContent()) {
             return [];
         }
 
         return $response->throw()->object();
     }
 
-    private function setupResponse(): PendingRequest
+    public static function cache(): Repository
     {
-        return Http::acceptJson()->withBasicAuth(
-            config('topdesk.application_username'),
-            config('topdesk.application_password')
-        )->baseUrl($this->endpointWithTrailingSlash());
+        return Cache::store(config('topdesk.cache_driver'));
     }
 
     public function getArchiveReasonId(string $string): string
@@ -132,64 +120,40 @@ class TOPDesk
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function getArchiveReasons(): Collection
     {
-        return self::query()
-            ->get('api/archiving-reasons')
-            ->throw()
-            ->collect();
+        return self::query()->get('api/archiving-reasons')->throw()->collect();
     }
 
     /**
-     * Let's hold the end users hands,
-     * and if they fall at the first hurdle,
-     * we won't say a thing!
-     */
-    private function endpointWithTrailingSlash(): string
-    {
-        return rtrim(config('topdesk.endpoint'), '/\\').'/';
-    }
-
-    /**
-     * Does some repetitive lifting for us. Calculates whether we should happily
-     * rely on the Cache or to clear that cache object and fetch brand new data.
-     *
-     * It then returns the cacheKey back so the framework can use it.
-     *
-     *
-     * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
+     * Pattern: cache-busting helper used by traits.
+     * Forgets the entry so the subsequent self::cache()->remember() call misses and
+     * re-populates — honouring both per-call $forgetCache and the global
+     * ignore_cache config flag without duplicating the logic in every method.
      */
     public function setupCacheObject(string $cacheKey, bool $forgetCache): string
     {
         if ($forgetCache || config('topdesk.ignore_cache')) {
-            Cacher::forget($cacheKey);
+            Cache::forget($cacheKey);
         }
 
         return $cacheKey;
     }
 
     /**
-     * Shorthand function to create requests with JSON body and query parameters.
-     *
-     * @param  string  $uri
-     * @param  array  $json
-     * @param  bool  $decode  JSON decode response body (defaults to true).
-     * @return mixed|ResponseInterface
-     *
-     * @throws \Exception
-     *
-     * @deprecated Use specific HTTP OPTION method instead
+     * @throws ConfigNotFound
      */
-    public function request(
-        $method,
-        $uri = '',
-        array $body = [],
-        array $query = [],
-        array $options = [],
-        $decode = true
-    ) {
-        throw new \Exception('Method Deprecated. Use specific HTTP OPTION method instead.');
+    private function checkConfig(): void
+    {
+        foreach (config('topdesk') as $key => $value) {
+            if ($value === null) {
+                throw new ConfigNotFound("Config value 'topdesk.{$key}' is not set.");
+            }
+            if ($value === '') {
+                throw new ConfigNotFound("Config value 'topdesk.{$key}' must not be an empty string.");
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Models;
 
-class OperatorGroup extends BaseModel
-{
-}
+class OperatorGroup extends BaseModel {}

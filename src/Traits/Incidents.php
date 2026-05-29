@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Traits;
 
 use Carbon\Carbon;
-use FredBradley\Cacher\Cacher;
-use FredBradley\Cacher\Exceptions\FrameworkNotDetected;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Exceptions\OperatorGroupNotFound;
 use FredBradley\TOPDesk\Exceptions\OperatorNotFound;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Support\Str;
 
 /**
@@ -17,9 +19,6 @@ use Illuminate\Support\Str;
  */
 trait Incidents
 {
-    /**
-     * @throws \FredBradley\Cacher\Exceptions\FrameworkNotDetected
-     */
     public function getOpenIncidentsByOperatorGroupId(string $operatorGroupId, string $processingStatus = 'Open', bool $forgetCache = false): Collection
     {
         $cacheKey = $this->setupCacheObject('open_incidents_'.$operatorGroupId.$processingStatus, $forgetCache);
@@ -30,7 +29,7 @@ trait Incidents
             $processingStatus = 'Closed';
         }
 
-        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupId, $processingStatus, $processingStatusOperator) {
+        return self::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($operatorGroupId, $processingStatus, $processingStatusOperator) {
             try {
                 $processingStatusId = $this->getProcessingStatusId($processingStatus);
                 $response = self::query()->get('api/incidents', [
@@ -48,15 +47,46 @@ trait Incidents
                     return $ticket;
                 });
             } catch (RequestException $exception) {
-                dd($exception->getMessage());
+                throw $exception;
             }
         });
     }
 
     /**
-     * @deprecated use getIncident() instead
+     * @param  array  $options  Keys: start, page_size, query (FIQL), fields, sort, etc.
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException|ConnectionException
+     */
+    public function getListOfIncidents(array $options = []): array|object
+    {
+        return $this->get('api/incidents', array_merge(['start' => 0, 'page_size' => 100], $options));
+    }
+
+    /**
+     * @param  array  $data  Any incident fields: briefDescription, request, action, category{id},
+     *                       subcategory{id}, operator{id}, operatorGroup{id}, processingStatus{id},
+     *                       priority{id}, impact{id}, urgency{id}, duration{id}, targetDate,
+     *                       onHold, closed, closedDate, closureCode{id}, costs, etc.
+     *
+     * @throws RequestException
+     */
+    public function updateIncident(string $id, array $data): object
+    {
+        return $this->patch('api/incidents/id/'.$id, $data);
+    }
+
+    /**
+     * @throws RequestException
+     */
+    public function updateIncidentByNumber(string $number, array $data): object
+    {
+        return $this->patch('api/incidents/number/'.$number, $data);
+    }
+
+    /**
+     * @throws RequestException|ConnectionException
+     *
+     * @deprecated use getIncident() instead
      */
     public function getIncidentbyNumber(string $topdeskIncidentNumber): object
     {
@@ -66,7 +96,7 @@ trait Incidents
     /**
      * @param  string  $topdeskIncidentNumber  either the UNID or Ticket Number
      *
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException|ConnectionException
      */
     public function getIncident(string $topdeskIncidentNumber): object
     {
@@ -100,18 +130,18 @@ trait Incidents
     }
 
     /**
-     * @throws \Illuminate\Http\Client\RequestException
+     * @throws RequestException
      */
     public function createIncident(array $options): object
     {
         return $this->post('api/incidents', $options);
     }
 
-    public function getOperatorByUsername(string $username, $forgetCache = false): Collection|\stdClass
+    public function getOperatorByUsername(string $username, bool $forgetCache = false): Collection|\stdClass
     {
         $cacheKey = $this->setupCacheObject('operator_'.$username, $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::months(1), function () use ($username) {
+        return self::cache()->remember($cacheKey, EasySeconds::months(1), function () use ($username) {
             $result = self::query()->get('api/operators', [
                 'page_size' => 1,
                 'query' => '(networkLoginName=='.$username.')',
@@ -139,7 +169,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('get_operator_group_name_'.$name, $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::months(1), function () use ($name) {
+        return self::cache()->remember($cacheKey, EasySeconds::months(1), function () use ($name) {
             $result = self::query()->get('api/operatorgroups/lookup', [
                 'name' => $name,
                 'archived' => false,
@@ -179,7 +209,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('getProcessingStatusId_'.$name, $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
             return $this->getProcessingStatus($name, $forgetCache)['id'];
         });
     }
@@ -187,13 +217,13 @@ trait Incidents
     /**
      * @return \stdClass
      *
-     * @throws \Illuminate\Support\ItemNotFoundException
+     * @throws ItemNotFoundException
      */
     public function getProcessingStatus(string $name, bool $forgetCache = false): array
     {
         $cacheKey = $this->setupCacheObject('status_'.$name, $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
+        return self::cache()->remember($cacheKey, EasySeconds::weeks(1), function () use ($name, $forgetCache) {
             $statuses = $this->getAllProcessingStatuses($forgetCache);
 
             return $statuses->where('name', $name)->first() ?? throw new \Exception('Status Not Found');
@@ -204,7 +234,7 @@ trait Incidents
     {
         $cacheKey = $this->setupCacheObject('statuses', $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::days(30), function () {
+        return self::cache()->remember($cacheKey, EasySeconds::days(30), function () {
             return self::query()->get('api/incidents/statuses')->collect();
         });
     }

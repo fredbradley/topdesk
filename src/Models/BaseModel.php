@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Models;
 
-use FredBradley\Cacher\Cacher;
 use FredBradley\EasyTime\EasySeconds;
 use FredBradley\TOPDesk\Facades\TOPDesk;
 use Illuminate\Support\Collection;
@@ -34,10 +35,13 @@ abstract class BaseModel
         self::$model = get_called_class();
         self::$endpoint = match (self::$model) {
             Asset::class => 'assetmgmt/assets',
+            Branch::class => 'branches',
+            Location::class => 'locations',
             Operator::class => 'operators',
             OperatorGroup::class => 'operatorgroups',
             Person::class => 'persons',
-            PersonGroup::class => 'persongroups'
+            PersonGroup::class => 'persongroups',
+            Supplier::class => 'suppliers',
         };
     }
 
@@ -59,13 +63,11 @@ abstract class BaseModel
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.$variableKey.$variableValue),
             forgetCache: $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
-            $result = TOPDesk::query()->get('api/'.self::$endpoint.'/', [
+        return TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($variableValue, $variableKey) {
+            return TOPDesk::query()->get('api/'.self::$endpoint.'/', [
                 'query' => $variableKey.'=='.$variableValue,
-            ])->throw()->collect()->mapInto(self::$model);
-
-            return $result;
-        });
+            ])->throw()->collect();
+        })->mapInto(self::$model);
     }
 
     public static function findById(string $id, bool $forgetCache = false): BaseModel
@@ -74,15 +76,16 @@ abstract class BaseModel
 
         $cacheKey = TOPDesk::setupCacheObject(cacheKey: Str::slug(self::$endpoint.'id'.$id), forgetCache: $forgetCache);
 
-        return Cacher::remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
-            $endpoint = 'api/'.self::$endpoint.'/id/'.$id;
-            if (self::$model === Asset::class) {
-                $endpoint = 'api/'.self::$endpoint.'/'.$id;
-            }
+        $data = TOPDesk::cache()->remember($cacheKey, EasySeconds::minutes(5), function () use ($id) {
+            // Some APIs use /{id} directly; others use /id/{id}
+            $noIdPrefix = [Asset::class, PersonGroup::class, Supplier::class];
+            $endpoint = in_array(self::$model, $noIdPrefix)
+                ? 'api/'.self::$endpoint.'/'.$id
+                : 'api/'.self::$endpoint.'/id/'.$id;
 
-            $result = TOPDesk::query()->get($endpoint)->throw()->object();
-
-            return new self::$model($result);
+            return TOPDesk::query()->get($endpoint)->throw()->object();
         });
+
+        return new self::$model($data);
     }
 }

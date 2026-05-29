@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk;
 
 use Illuminate\Http\Client\PendingRequest;
@@ -7,87 +9,48 @@ use Illuminate\Support\ServiceProvider;
 
 class TOPDeskServiceProvider extends ServiceProvider
 {
-    /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
-        PendingRequest::macro('topdeskAuth', function () {
-            // Useful sanitization technique
-            $endpointWithTrailingSlash = rtrim(config('topdesk.endpoint'), '/\\').'/';
-
-            return PendingRequest::withBasicAuth(
-                config('topdesk.application_username'),
-                config('topdesk.application_password')
-            )->baseUrl($endpointWithTrailingSlash);
+        /*
+         * Pattern: Http::macro() extends Laravel's HTTP client with a named,
+         * pre-configured PendingRequest. All credential and base-URL knowledge
+         * lives here — nothing else in the package needs to know how auth works.
+         *
+         * The closure is bound to the PendingRequest instance at call time,
+         * so $this refers to the PendingRequest being built, not the service provider.
+         * This is why withBasicAuth() and baseUrl() are called on $this rather
+         * than as static calls on PendingRequest.
+         */
+        PendingRequest::macro('topdeskAuth', function (): PendingRequest {
+            return $this->acceptJson()
+                ->withBasicAuth(
+                    config('topdesk.application_username'),
+                    config('topdesk.application_password')
+                )
+                ->baseUrl(rtrim(config('topdesk.endpoint'), '/\\').'/');
         });
 
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'fredbradley');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'fredbradley');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
-
-        // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
-            $this->bootForConsole();
+            $this->publishes([
+                __DIR__.'/../config/topdesk.php' => config_path('topdesk.php'),
+            ], 'topdesk.config');
         }
     }
 
-    /**
-     * Register any package services.
-     *
-     * @return void
-     */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/topdesk.php', 'topdesk');
 
-        // Register the service the package provides.
-        $this->app->singleton('topdesk', function ($app) {
-            return new TOPDesk;
-        });
+        /*
+         * Pattern: singleton registration binds the class to the container
+         * under a string key. The Facade's getFacadeAccessor() resolves it
+         * by that key, so neither the Facade nor callers need to import TOPDesk.
+         */
+        $this->app->singleton('topdesk', fn () => new TOPDesk);
     }
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
+    public function provides(): array
     {
         return ['topdesk'];
-    }
-
-    /**
-     * Console-specific booting.
-     *
-     * @return void
-     */
-    protected function bootForConsole()
-    {
-        // Publishing the configuration file.
-        $this->publishes([
-            __DIR__.'/../config/topdesk.php' => config_path('topdesk.php'),
-        ], 'topdesk.config');
-
-        // Publishing the views.
-        /*$this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/fredbradley'),
-        ], 'topdesk.views');*/
-
-        // Publishing assets.
-        /*$this->publishes([
-            __DIR__.'/../resources/assets' => public_path('vendor/fredbradley'),
-        ], 'topdesk.views');*/
-
-        // Publishing the translation files.
-        /*$this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/fredbradley'),
-        ], 'topdesk.views');*/
-
-        // Registering package commands.
-        $this->commands([]);
     }
 }

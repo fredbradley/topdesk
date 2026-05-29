@@ -1,13 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FredBradley\TOPDesk\Exceptions;
 
-use Throwable;
-
-class ConfigNotFound extends \Exception
-{
-    public function __construct($message = '', $code = 0, ?Throwable $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
-}
+// Pattern: exception classes only need a body when they add behaviour beyond their parent.
+// An empty class body inherits Exception's full constructor/message handling for free.
+class ConfigNotFound extends \RuntimeException {}
