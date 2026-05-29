@@ -23,9 +23,9 @@ trait Assets
         // cache flushes. A 30-day TTL is effectively permanent for this data but
         // respects the $forgetCache / ignore_cache flags via setupCacheObject().
         return self::cache()->remember($cacheKey, EasySeconds::days(30), function () use ($name) {
-            $return = self::query()->get('api/assetmgmt/templates')->throw()->collect();
+            $return = self::query()->get('api/assetmgmt/cardTypes')->throw()->collect();
 
-            return collect($return['dataSet'])->where('text', '=', $name)->first()['id'];
+            return collect($return["cardTypes"])->where("displayName", "=", $name)->first()["key"];
         });
     }
 
